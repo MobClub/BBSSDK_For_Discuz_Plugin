@@ -112,7 +112,7 @@ class Forum extends BaseCore
 		$uid = intval($this->uid);
 		$clientip = $this->clientip;
 		$subject = urldecode($this->subject);
-		$message = $this->bbcode_encode($this->message);
+		$message = htmlspecialchars_decode($this->bbcode_encode($this->message));
 
 		if(!$fid || !$uid || empty($clientip) || empty($subject) || empty($message)){
 			return_status(403);
@@ -207,7 +207,7 @@ class Forum extends BaseCore
 		$tid = intval($this->tid);
 		$clientip = $this->clientip;
 		$subject = urldecode($this->subject);
-		$message = $this->bbcode_encode($this->message);
+		$message = htmlspecialchars_decode($this->bbcode_encode($this->message));
 
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($subject) || empty($message)){
 			return_status(403);

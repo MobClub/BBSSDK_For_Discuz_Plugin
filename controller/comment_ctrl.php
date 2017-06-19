@@ -82,7 +82,7 @@ class Comment extends BaseCore
 		$_G['uid'] = $uid = intval($this->uid);
 		$reppid = intval($this->reppid);
 		$clientip = $this->clientip;
-		$message = $this->bbcode_encode($this->message);
+		$message = htmlspecialchars_decode($this->bbcode_encode($this->message));
 
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($message)){
 			return_status(403);
@@ -202,7 +202,7 @@ class Comment extends BaseCore
 		$tid = intval($this->tid);
 		$pid = intval($this->pid);
 		$clientip = $this->clientip;
-		$message = $this->bbcode_encode($this->message);
+		$message = htmlspecialchars_decode($this->bbcode_encode($this->message));
 
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($message)){
 			return_status(403);
