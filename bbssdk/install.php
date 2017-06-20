@@ -115,7 +115,7 @@ function install_action()
 	  `synctime` int(11) DEFAULT NULL,
 	  `flag` tinyint(4) DEFAULT NULL,
 	  PRIMARY KEY (`syncid`),
-	  UNIQUE KEY `indexid` (`fid`,`tid`,`pid`) USING BTREE,
+	  UNIQUE KEY `indexid` USING BTREE (`fid`,`tid`,`pid`),
 	  KEY `fid` (`fid`),
 	  KEY `tid` (`tid`),
 	  KEY `pid` (`pid`)
@@ -132,7 +132,7 @@ function install_action()
 	  `synctime` int(11) DEFAULT NULL,
 	  `flag` tinyint(4) DEFAULT NULL,
 	  PRIMARY KEY (`syncid`),
-	  UNIQUE KEY `indexid` (`fid`,`tid`) USING BTREE
+	  UNIQUE KEY `indexid` USING BTREE (`fid`,`tid`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 
 	DB::query($sql);
@@ -145,7 +145,7 @@ function install_action()
 	  `synctime` int(11) DEFAULT '0',
 	  `flag` tinyint(4) DEFAULT '0',
 	  PRIMARY KEY (`syncid`),
-	  UNIQUE KEY `fid` (`fid`) USING BTREE
+	  UNIQUE KEY `fid` USING BTREE (`fid`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 
 	DB::query($sql);
@@ -158,7 +158,7 @@ function install_action()
 	  `synctime` int(11) DEFAULT '0',
 	  `flag` tinyint(4) DEFAULT '0',
 	  PRIMARY KEY (`syncid`),
-	  UNIQUE KEY `uid` (`uid`) USING BTREE
+	  UNIQUE KEY `uid` USING BTREE (`uid`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 
 	DB::query($sql);
@@ -171,7 +171,7 @@ function install_action()
 	  `synctime` int(11) DEFAULT '0',
 	  `flag` tinyint(4) DEFAULT '0',
 	  PRIMARY KEY (`syncid`),
-	  UNIQUE KEY `groupid` (`groupid`) USING BTREE
+	  UNIQUE KEY `groupid` USING BTREE (`groupid`)
 	) ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 
 	DB::query($sql);
