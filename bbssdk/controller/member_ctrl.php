@@ -305,9 +305,6 @@ class Member extends BaseCore
 				return_status(3021101,'邮件已发送，请登录邮箱验证');
 			}
 		}
-		if($ctlObj->setting['regverify'] == 2) {
-			return_status(3021103,'信息提交成功还需要人工审核，请联系管理员');
-		}
 		require_once libfile('cache/userstats', 'function');
 		build_cache_userstats();
 		$regmessage = dhtmlspecialchars('from bbssdk client');
@@ -323,6 +320,7 @@ class Member extends BaseCore
 						'remark' => '',
 						), false, true);
 			manage_addnotify('verifyuser');
+			return_status(3021103,'信息提交成功还需要人工审核，请联系管理员');
 		}
 		setloginstatus(array(
 					'uid' => $uid,
