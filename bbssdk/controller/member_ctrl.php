@@ -528,8 +528,182 @@ class Member extends BaseCore
 			$this->success_result($final,join(',',$success_msg));
 		}
 	}
+        public function post_support(){
+            global $_G;
+            $_G['uid'] = intval($this->uid);
+            $_G['tid'] = intval($this->tid);
+            $_G['pid'] = intval($this->pid);
+            $do = $this->do?$this->do:'support';
+            
+            if(empty($_G['uid'])){
+                return_status(601);
+            }
+            $doArray = array('support', 'against');
 
-	private function relation_item($item)
+            $post = C::t('forum_post')->fetch('tid:'.$_G['tid'], $_G['pid'], false);
+
+            if(!in_array($do, $doArray) || empty($post) || $post['first'] == 1 || ($_G['setting']['threadfilternum'] && $_G['setting']['filterednovote'] && getstatus($post['status'], 11))) {
+                    return_status(602);
+            }
+
+            $hotreply = C::t('forum_hotreply_number')->fetch_by_pid($post['pid']);
+            if($_G['uid'] == $post['authorid']) {
+                    return_status(603);
+            }
+
+            if(empty($hotreply)) {
+                    $hotreply['pid'] = C::t('forum_hotreply_number')->insert(array(
+                            'pid' => $post['pid'],
+                            'tid' => $post['tid'],
+                            'support' => 0,
+                            'against' => 0,
+                            'total' => 0,
+                    ), true);
+            } else {
+                    if(C::t('forum_hotreply_member')->fetch($post['pid'], $_G['uid'])) {
+                            return_status(604);
+                    }
+            }
+
+            $typeid = $do == 'support' ? 1 : 0;
+
+            C::t('forum_hotreply_number')->update_num($post['pid'], $typeid);
+            C::t('forum_hotreply_member')->insert(array(
+                    'tid' => $post['tid'],
+                    'pid' => $post['pid'],
+                    'uid' => $_G['uid'],
+                    'attitude' => $typeid,
+            ));
+
+            $hotreply[$do]++;
+
+            return_status(200,'操作成功');
+        }
+        public function post_follow(){
+            global $_G;
+            $_G['uid']  = intval($this->uid);
+            $_G['fuid'] = intval($this->fuid);
+            
+            if(empty($_G['uid'])) {
+                    return_status(601);
+            }
+            
+            $followuid = intval($_G['fuid']);
+            if(empty($followuid)) {
+                    return_status(607);
+            }
+            if($_G['uid'] == $followuid) {
+                    return_status(608);
+            }
+            $special = intval($this->special) ? intval($this->special) : 0;
+            $followuser = getuserbyuid($followuid);
+            $mutual = 0;
+            $followed = C::t('home_follow')->fetch_by_uid_followuid($followuid, $_G['uid']);
+            if(!empty($followed)) {
+                    if($followed['status'] == '-1') {
+                            return_status(609);
+                    }
+                    $mutual = 1;
+                    C::t('home_follow')->update_by_uid_followuid($followuid, $_G['uid'], array('mutual'=>1));
+            }
+            $followed = C::t('home_follow')->fetch_by_uid_followuid($_G['uid'], $followuid);
+            if(empty($followed)) {
+                    $user = getuserbyuid($_G['uid']);
+                    $followdata = array(
+                            'uid' =>$_G['uid'],
+                            'username' => $user['username'],
+                            'followuid' => $followuid,
+                            'fusername' => $followuser['username'],
+                            'status' => 0,
+                            'mutual' => $mutual,
+                            'dateline' => TIMESTAMP
+                    );
+                    C::t('home_follow')->insert($followdata, false, true);
+                    C::t('common_member_count')->increase($_G['uid'], array('following' => 1));
+                    C::t('common_member_count')->increase($followuid, array('follower' => 1, 'newfollower' => 1));
+                    notification_add($followuid, 'follower', 'member_follow_add', array('count' => $count, 'from_id'=>$_G['uid'], 'from_idtype' => 'following'), 1);
+            } elseif($special) {
+                    $status = $special == 1 ? 1 : 0;
+                    C::t('home_follow')->update_by_uid_followuid($_G['uid'], $followuid, array('status'=>$status));
+                    $special = $special == 1 ? 2 : 1;
+            } else {
+                    return_status(610);
+            }
+            $type = !$special ? 'add' : 'special';
+            
+            return_status(200,'成功收听');
+        }
+        public function post_unfollow(){
+            global $_G;
+            $_G['uid']  = intval($this->uid);
+            $_G['fuid'] = intval($this->fuid);
+            
+            if(empty($_G['uid'])) {
+                    return_status(601);
+            }
+            
+            $delfollowuid = intval($_G['fuid']);
+            if(empty($delfollowuid)) {
+                    return_status(607);
+            }
+            $affectedrows = C::t('home_follow')->delete_by_uid_followuid($_G['uid'], $delfollowuid);
+            if($affectedrows) {
+                    C::t('home_follow')->update_by_uid_followuid($delfollowuid, $_G['uid'], array('mutual'=>0));
+                    C::t('common_member_count')->increase($_G['uid'], array('following' => -1));
+                    C::t('common_member_count')->increase($delfollowuid, array('follower' => -1, 'newfollower' => -1));
+            }
+            return_status(200,'成功取消关注');
+        }
+        public function get_my(){
+            global $_G;
+            
+            $_GET['pagesize'] = intval($_GET['pagesize']);
+            $_GET['page'] = intval($_GET['page']);
+            $_GET['fid']  = intval($_GET['fid']);
+            $_GET['fid']  = isset($_GET['fid'])?$_GET['fid']:0;
+            $_GET['page'] = !isset($_GET['page'])||$_GET['page']<1?1:$_GET['page'];
+            $perpage = !isset($_GET['pagesize'])||$_GET['pagesize']<1?10:$_GET['pagesize'];
+            $start = $perpage * ($_GET['page'] - 1);
+            $data = array();
+            $_G['uid'] = intval($_GET['uid']);
+            if(!$_G['uid']) {
+                    return_status(601);
+            }
+            $lang = lang('forum/template');
+            $filter_array = array( 'common' => $lang['have_posted'], 'save' => $lang['guide_draft'], 'close' => $lang['close'], 'aduit' => $lang['pending'], 'ignored' => $lang['have_ignored'], 'recyclebin' => $lang['forum_recyclebin']);
+            $viewtype = in_array($_GET['type'], array('reply', 'thread', 'postcomment')) ? $_GET['type'] : 'thread';
+            if($searchkey = stripsearchkey($_GET['searchkey'])) {
+                    $searchkey = dhtmlspecialchars($searchkey);
+            }
+            $theurl .= '&type='.$viewtype;
+            $filter = in_array($_GET['filter'], array_keys($filter_array)) ? $_GET['filter'] : '';
+            $searchbody = 0;
+            if($filter) {
+                    $theurl .= '&filter='.$filter;
+                    $searchbody = 1;
+            }
+            if($_GET['fid']) {
+                    $theurl .= '&fid='.intval($_GET['fid']);
+                    $searchbody = 1;
+            }
+            if($searchkey) {
+                    $theurl .= '&searchkey='.$searchkey;
+                    $searchbody = 1;
+            }
+            //require_once libfile('function/forumlist');
+            //$forumlist = forumselect(FALSE, 0, intval($_GET['fid']));
+            $list = get_my_threads($viewtype, $_GET['fid'], $filter, $searchkey, $start, $perpage, $theurl);
+            $data['total_count'] = '';
+            $data['pagesize'] = $perpage;
+            $data['currpage'] = $_GET['page'];
+            $data['nextpage'] = $_GET['page']+1;
+            $data['prepage'] = $_GET['page']>1?$_GET['page']-1:1;
+
+            $data['list'] = array_values($list['threadlist']);
+            $this->success_result($data);
+        }
+
+        private function relation_item($item)
 	{
 		return array(
 			'uid' => (int)$item['uid'],
@@ -559,4 +733,210 @@ class Member extends BaseCore
 			'conisbind' => (int) $item['conisbind']
 		);
 	}
+}
+
+function get_my_threads($viewtype, $fid = 0, $filter = '', $searchkey = '', $start = 0, $perpage = 20, $theurl = '') {
+        global $_G;
+        $fid = $fid ? intval($fid) : null;
+        loadcache('forums');
+        $dglue = '=';
+        if($viewtype == 'thread') {
+                $authorid = $_G['uid'];
+                $dglue = '=';
+                if($filter == 'recyclebin') {
+                        $displayorder = -1;
+                } elseif($filter == 'aduit') {
+                        $displayorder = -2;
+                } elseif($filter == 'ignored') {
+                        $displayorder = -3;
+                } elseif($filter == 'save') {
+                        $displayorder = -4;
+                } elseif($filter == 'close') {
+                        $closed = 1;
+                } elseif($filter == 'common') {
+                        $closed = 0;
+                        $displayorder = 0;
+                        $dglue = '>=';
+                }
+
+                $gids = $fids = $forums = array();
+
+                foreach(C::t('forum_thread')->fetch_all_by_authorid_displayorder($authorid, $displayorder, $dglue, $closed, $searchkey, $start, $perpage, null, $fid) as $tid => $value) {
+                        if(!isset($_G['cache']['forums'][$value['fid']])) {
+                                $gids[$value['fid']] = $value['fid'];
+                        } else {
+                                $forumnames[$value['fid']] = array('fid'=> $value['fid'], 'name' => $_G['cache']['forums'][$value['fid']]['name']);
+                        }
+                        $list[$value['tid']] = guide_procthread($value);
+                }
+
+                if(!empty($gids)) {
+                        $gforumnames = C::t('forum_forum')->fetch_all_name_by_fid($gids);
+                        foreach($gforumnames as $fid => $val) {
+                                $forumnames[$fid] = $val;
+                        }
+                }
+                $listcount = count($list);
+        } elseif($viewtype == 'postcomment') {
+                require_once libfile('function/post');
+                $pids = $tids = array();
+                $postcommentarr = C::t('forum_postcomment')->fetch_all_by_authorid($_G['uid'], $start, $perpage);
+                foreach($postcommentarr as $value) {
+                        $pids[] = $value['pid'];
+                        $tids[] = $value['tid'];
+                }
+                $pids = C::t('forum_post')->fetch_all(0, $pids);
+                $tids = C::t('forum_thread')->fetch_all($tids);
+
+                $list = $fids = array();
+                foreach($postcommentarr as $value) {
+                        $value['authorid'] = $pids[$value['pid']]['authorid'];
+                        $value['fid'] = $pids[$value['pid']]['fid'];
+                        $value['invisible'] = $pids[$value['pid']]['invisible'];
+                        $value['dateline'] = $pids[$value['pid']]['dateline'];
+                        $value['message'] = $pids[$value['pid']]['message'];
+                        $value['special'] = $tids[$value['tid']]['special'];
+                        $value['status'] = $tids[$value['tid']]['status'];
+                        $value['subject'] = $tids[$value['tid']]['subject'];
+                        $value['digest'] = $tids[$value['tid']]['digest'];
+                        $value['attachment'] = $tids[$value['tid']]['attachment'];
+                        $value['replies'] = $tids[$value['tid']]['replies'];
+                        $value['views'] = $tids[$value['tid']]['views'];
+                        $value['lastposter'] = $tids[$value['tid']]['lastposter'];
+                        $value['lastpost'] = $tids[$value['tid']]['lastpost'];
+                        $value['icon'] = $tids[$value['tid']]['icon'];
+                        $value['tid'] = $pids[$value['pid']]['tid'];
+
+                        $fids[] = $value['fid'];
+                        $value['comment'] = messagecutstr($value['comment'], 100);
+                        $list[] = guide_procthread($value);
+                }
+                unset($pids, $tids, $postcommentarr);
+                if($fids) {
+                        $fids = array_unique($fids);
+                        $forumnames = C::t('forum_forum')->fetch_all_name_by_fid($gids);
+                }
+                $listcount = count($list);
+        } else {
+                $invisible = null;
+
+                if($filter == 'recyclebin') {
+                        $invisible = -5;
+                } elseif($filter == 'aduit') {
+                        $invisible = -2;
+                } elseif($filter == 'save' || $filter == 'ignored') {
+                        $invisible = -3;
+                        $displayorder = -4;
+                } elseif($filter == 'close') {
+                        $closed = 1;
+                } elseif($filter == 'common') {
+                        $invisible = 0;
+                        $displayorder = 0;
+                        $dglue = '>=';
+                        $closed = 0;
+                }
+                require_once libfile('function/post');
+                $posts = C::t('forum_post')->fetch_all_by_authorid(0, $_G['uid'], true, 'DESC', $start, $perpage, null, $invisible, $fid, $followfid);
+                $listcount = count($posts);
+                foreach($posts as $pid => $post) {
+                        $tids[$post['tid']][] = $pid;
+                        $post['message'] = !getstatus($post['status'], 2) || $post['authorid'] == $_G['uid'] ? messagecutstr($post['message'], 100) : '';
+                        $posts[$pid] = $post;
+                }
+                if(!empty($tids)) {
+                        $threads = C::t('forum_thread')->fetch_all_by_tid_displayorder(array_keys($tids), $displayorder, $dglue, array(), $closed);
+                        foreach($threads as $tid => $thread) {
+                                if(!isset($_G['cache']['forums'][$thread['fid']])) {
+                                        $gids[$thread['fid']] = $thread['fid'];
+                                } else {
+                                        $forumnames[$thread[fid]] = array('fid' => $thread['fid'], 'name' => $_G['cache']['forums'][$thread[fid]]['name']);
+                                }
+                                $threads[$tid] = guide_procthread($thread);
+                        }
+                        if(!empty($gids)) {
+                                $groupforums = C::t('forum_forum')->fetch_all_name_by_fid($gids);
+                                foreach($groupforums as $fid => $val) {
+                                        $forumnames[$fid] = $val;
+                                }
+                        }
+                        $list = array();
+                        foreach($tids as $key => $val) {
+                                $list[$key] = $threads[$key];
+                        }
+                        unset($threads);
+                }
+        }
+        $multi = simplepage($listcount, $perpage, $_G['page'], $theurl);
+        return array('forumnames' => $forumnames, 'threadcount' => $listcount, 'threadlist' => $list, 'multi' => $multi, 'tids' => $tids, 'posts' => $posts);
+}
+function guide_procthread($thread) {
+	global $_G;
+	$todaytime = strtotime(dgmdate(TIMESTAMP, 'Ymd'));
+	$thread['lastposterenc'] = rawurlencode($thread['lastposter']);
+	$thread['multipage'] = '';
+	$topicposts = $thread['special'] ? $thread['replies'] : $thread['replies'] + 1;
+	if($topicposts > $_G['ppp']) {
+		$pagelinks = '';
+		$thread['pages'] = ceil($topicposts / $_G['ppp']);
+		for($i = 2; $i <= 6 && $i <= $thread['pages']; $i++) {
+			$pagelinks .= "<a href=\"forum.php?mod=viewthread&tid=$thread[tid]&amp;extra=$extra&amp;page=$i\">$i</a>";
+		}
+		if($thread['pages'] > 6) {
+			$pagelinks .= "..<a href=\"forum.php?mod=viewthread&tid=$thread[tid]&amp;extra=$extra&amp;page=$thread[pages]\">$thread[pages]</a>";
+		}
+		$thread['multipage'] = '&nbsp;...'.$pagelinks;
+	}
+
+	if($thread['highlight']) {
+		$string = sprintf('%02d', $thread['highlight']);
+		$stylestr = sprintf('%03b', $string[0]);
+
+		$thread['highlight'] = ' style="';
+		$thread['highlight'] .= $stylestr[0] ? 'font-weight: bold;' : '';
+		$thread['highlight'] .= $stylestr[1] ? 'font-style: italic;' : '';
+		$thread['highlight'] .= $stylestr[2] ? 'text-decoration: underline;' : '';
+		$thread['highlight'] .= $string[1] ? 'color: '.$_G['forum_colorarray'][$string[1]] : '';
+		$thread['highlight'] .= '"';
+	} else {
+		$thread['highlight'] = '';
+	}
+
+	$thread['recommendicon'] = '';
+	if(!empty($_G['setting']['recommendthread']['status']) && $thread['recommends']) {
+		foreach($_G['setting']['recommendthread']['iconlevels'] as $k => $i) {
+			if($thread['recommends'] > $i) {
+				$thread['recommendicon'] = $k+1;
+				break;
+			}
+		}
+	}
+
+	$thread['moved'] = $thread['heatlevel'] = $thread['new'] = 0;
+	$thread['icontid'] = $thread['forumstick'] || !$thread['moved'] && $thread['isgroup'] != 1 ? $thread['tid'] : $thread['closed'];
+	$thread['folder'] = 'common';
+	$thread['weeknew'] = TIMESTAMP - 604800 <= $thread['dbdateline'];
+	if($thread['replies'] > $thread['views']) {
+		$thread['views'] = $thread['replies'];
+	}
+	if($_G['setting']['heatthread']['iconlevels']) {
+		foreach($_G['setting']['heatthread']['iconlevels'] as $k => $i) {
+			if($thread['heats'] > $i) {
+				$thread['heatlevel'] = $k + 1;
+				break;
+			}
+		}
+	}
+	$thread['istoday'] = $thread['dateline'] > $todaytime ? 1 : 0;
+	$thread['dbdateline'] = $thread['dateline'];
+	$thread['dateline'] = dgmdate($thread['dateline'], 'u', '9999', getglobal('setting/dateformat'));
+	$thread['dblastpost'] = $thread['lastpost'];
+	$thread['lastpost'] = dgmdate($thread['lastpost'], 'u');
+
+	if(in_array($thread['displayorder'], array(1, 2, 3, 4))) {
+		$thread['id'] = 'stickthread_'.$thread['tid'];
+	} else {
+		$thread['id'] = 'normalthread_'.$thread['tid'];
+	}
+	$thread['rushreply'] = getstatus($thread['status'], 3);
+	return $thread;
 }
