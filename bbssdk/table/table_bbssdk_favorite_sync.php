@@ -23,7 +23,7 @@ class table_bbssdk_favorite_sync extends discuz_table
 		if($sort){
 			$this->checkpk();
 		}
-		return DB::fetch_all("select * from ".DB::table($this->_table) . " where synctime = 0 or  synctime>= ".$t." order by ".DB::order($this->_pk,$sort) . DB::limit(0, $limit));
+		return DB::fetch_all("select * from ".DB::table($this->_table) . " where synctime = 0 or  modifytime>= ".$t." order by ".DB::order($this->_pk,$sort) . DB::limit(0, $limit));
 	}
 
 	public function change_status($ids)

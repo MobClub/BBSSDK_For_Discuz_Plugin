@@ -165,6 +165,12 @@ function check_url($url)
     );
 }
 
+function get_site_url(){
+    global $_G;
+    $siteurl = empty($_G['setting']['siteurl'])?$_G['setting']['siteurl']:'http://'.$_SERVER['HTTP_HOST'];
+    return rtrim($siteurl,'/').'/';
+}
+
 function write_log($message,$type='error') 
 {
     $logTypes = BBSSDK_DEBUG ? array('error','warning','debug') : array('error');
