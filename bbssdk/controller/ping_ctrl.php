@@ -29,7 +29,7 @@ class Ping extends BaseCore
             }
             //论坛版块
             $fids = $syncids = [];
-            $menus = c::t('bbssdk_menu_sync')->unsync_list_by_time($t,3);
+            $menus = c::t('bbssdk_menu_sync')->unsync_list_by_time($t,100);
             if($menus){
                 foreach ($menus as $menu){
                     array_push($syncids, $menu['syncid']);
@@ -41,7 +41,7 @@ class Ping extends BaseCore
             }
             //用户组
             $groupids = $syncids = [];
-            $usergroups = c::t('bbssdk_usergroup_sync')->unsync_list_by_time($t,3);
+            $usergroups = c::t('bbssdk_usergroup_sync')->unsync_list_by_time($t,100);
             if($usergroups){
                 foreach ($usergroups as $usergroup){
                     array_push($syncids, $usergroup['syncid']);
@@ -52,7 +52,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_usergroup_sync')->change_status($syncids);
             }
             $uids = $syncids = [];
-            $members = c::t('bbssdk_member_sync')->unsync_list_by_time($t,3);
+            $members = c::t('bbssdk_member_sync')->unsync_list_by_time($t,100);
             if($members){
                 foreach ($members as $member){
                     array_push($syncids, $member['syncid']);
@@ -64,7 +64,7 @@ class Ping extends BaseCore
             }
             //主题
             $threads = $syncids = [];
-            $forums = c::t('bbssdk_forum_sync')->unsync_list_by_time($t,3);
+            $forums = c::t('bbssdk_forum_sync')->unsync_list_by_time($t,100);
             if($forums){
                 foreach ($forums as $forum){
                     array_push($syncids, $forum['syncid']);
@@ -76,7 +76,7 @@ class Ping extends BaseCore
             }
             //评论
             $posts = $syncids = [];
-            $comments = c::t('bbssdk_comment_sync')->unsync_list_by_time($t,3);
+            $comments = c::t('bbssdk_comment_sync')->unsync_list_by_time($t,100);
             if($comments){
                 foreach ($comments as $comment){
                     array_push($syncids, $comment['syncid']);
