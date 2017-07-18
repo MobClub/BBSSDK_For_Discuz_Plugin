@@ -7,7 +7,50 @@ class Favorite extends BaseCore
 	{
 		parent::__construct();
 	}
-	
+        /**
+         * 通过favid获取内容
+         * @param mix(int|array) $favid 
+         * @return array
+         */
+	private function _item($favid){
+            global $_G;
+            $list = array();
+            $idtypes = array('thread'=>'tid', 'forum'=>'fid', 'blog'=>'blogid', 'group'=>'gid', 'album'=>'albumid', 'space'=>'uid', 'article'=>'aid');
+            $favid = empty($favid)?0:dintval($favid, is_array($favid));
+            $result = DB::fetch_all("SELECT * FROM %t WHERE favid in(%n)", ['home_favorite', $favid]);
+            if($result){
+                $icons = array(
+                        'tid'=>'<img src="'.get_site_url().'static/image/feed/thread.gif" alt="thread" class="t" /> ',
+                        'fid'=>'<img src="'.get_site_url().'static/image/feed/discuz.gif" alt="forum" class="t" /> ',
+                        'blogid'=>'<img src="'.get_site_url().'static/image/feed/blog.gif" alt="blog" class="t" /> ',
+                        'gid'=>'<img src="'.get_site_url().'static/image/feed/group.gif" alt="group" class="t" /> ',
+                        'uid'=>'<img src="'.get_site_url().'static/image/feed/profile.gif" alt="space" class="t" /> ',
+                        'albumid'=>'<img src="'.get_site_url().'static/image/feed/album.gif" alt="album" class="t" /> ',
+                        'aid'=>'<img src="'.get_site_url().'static/image/feed/article.gif" alt="article" class="t" /> ',
+                );
+                foreach ($result as &$value){
+                    $value['icon'] = isset($icons[$value['idtype']]) ? $icons[$value['idtype']] : '';
+                    $value['url'] = makeurl($value['id'], $value['idtype'], $value['spaceuid']);
+                    $value['description'] = !empty($value['description']) ? nl2br($value['description']) : '';
+                    $value['type'] = array_flip($idtypes)[$value['idtype']];
+                    $list[$value['favid']] = $value;
+                    if($value['idtype'] == 'aid') {
+                            $articles[$value['favid']] = $value['id'];
+                    }
+                }
+                if(!empty($articles)) {
+                            include_once libfile('function/portal');
+                            $_urls = array();
+                            foreach(C::t('portal_article_title')->fetch_all($articles) as $aid => $article) {
+                                    $_urls[$aid] = fetch_article_url($article);
+                            }
+                            foreach ($articles as $favid => $aid) {
+                                    $list[$favid]['url'] = $_urls[$aid];
+                            }
+                    }
+            }
+            return array_values($list);
+        }
         public function get_add(){
             require_once libfile('function/home');
             global $_G;
@@ -127,8 +170,8 @@ class Favorite extends BaseCore
                             C::t('portal_article_count')->increase($id, array('favtimes' => 1));
                             break;
             }
-            
-            return $this->success_result(['favid'=>$favid]);            
+            $r = $this->_item($favid);
+            return $this->success_result($r);       
         }
         public function get_get(){
             global $_G;
@@ -203,40 +246,9 @@ class Favorite extends BaseCore
             $data = $list = array();
             $idtypes = array('thread'=>'tid', 'forum'=>'fid', 'blog'=>'blogid', 'group'=>'gid', 'album'=>'albumid', 'space'=>'uid', 'article'=>'aid');
             $favid = empty($_GET['favid'])?0:dintval($_GET['favid'], is_array($_GET['favid']));
-            $result = DB::fetch_all("SELECT * FROM %t WHERE favid in(%n)", ['home_favorite', $favid]);
-            if($result){
-                $icons = array(
-                        'tid'=>'<img src="'.get_site_url().'static/image/feed/thread.gif" alt="thread" class="t" /> ',
-                        'fid'=>'<img src="'.get_site_url().'static/image/feed/discuz.gif" alt="forum" class="t" /> ',
-                        'blogid'=>'<img src="'.get_site_url().'static/image/feed/blog.gif" alt="blog" class="t" /> ',
-                        'gid'=>'<img src="'.get_site_url().'static/image/feed/group.gif" alt="group" class="t" /> ',
-                        'uid'=>'<img src="'.get_site_url().'static/image/feed/profile.gif" alt="space" class="t" /> ',
-                        'albumid'=>'<img src="'.get_site_url().'static/image/feed/album.gif" alt="album" class="t" /> ',
-                        'aid'=>'<img src="'.get_site_url().'static/image/feed/article.gif" alt="article" class="t" /> ',
-                );
-                foreach ($result as &$value){
-                    $value['icon'] = isset($icons[$value['idtype']]) ? $icons[$value['idtype']] : '';
-                    $value['url'] = makeurl($value['id'], $value['idtype'], $value['spaceuid']);
-                    $value['description'] = !empty($value['description']) ? nl2br($value['description']) : '';
-                    $value['type'] = array_flip($idtypes)[$value['idtype']];
-                    $list[$value['favid']] = $value;
-                    if($value['idtype'] == 'aid') {
-                            $articles[$value['favid']] = $value['id'];
-                    }
-                }
-                if(!empty($articles)) {
-                            include_once libfile('function/portal');
-                            $_urls = array();
-                            foreach(C::t('portal_article_title')->fetch_all($articles) as $aid => $article) {
-                                    $_urls[$aid] = fetch_article_url($article);
-                            }
-                            foreach ($articles as $favid => $aid) {
-                                    $list[$favid]['url'] = $_urls[$aid];
-                            }
-                    }
-            }
-            $data['list'] = array_values($list);
-            return $this->success_result($data);;
+            
+            $data['list'] = $this->_item($favid);
+            return $this->success_result($data);
         }
         public function post_delete(){
             global $_G;
