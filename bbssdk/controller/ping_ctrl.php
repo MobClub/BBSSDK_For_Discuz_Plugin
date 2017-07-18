@@ -5,6 +5,7 @@ require_once 'table/table_bbssdk_menu_sync.php';
 require_once 'table/table_bbssdk_member_sync.php';
 require_once 'table/table_bbssdk_forum_sync.php';
 require_once 'table/table_bbssdk_comment_sync.php';
+require_once 'table/table_bbssdk_notification_sync.php';
 
 class Ping extends BaseCore
 {
@@ -86,6 +87,18 @@ class Ping extends BaseCore
                 }
                 c::t('bbssdk_comment_sync')->change_status($syncids);
             }
+            //通知
+            $notices = $syncids = [];
+            $notifications = c::t('bbssdk_notification_sync')->unsync_list_by_time($t,100);
+            if($notifications){
+                foreach ($notifications as $n){
+                    array_push($syncids, $n['syncid']);
+                    
+                    $n['noticeid']*=$n['flag']==3?-1:1;                    
+                    array_push($notices, $n['noticeid']);
+                }
+                c::t('bbssdk_notification_sync')->change_status($syncids);
+            }
             
             $data['time'] = DB::fetch_first('select UNIX_TIMESTAMP(NOW()) as timestamp')['timestamp'];
             
@@ -95,6 +108,7 @@ class Ping extends BaseCore
             $data['users']      = $uids;
             $data['threads']    = $threads;
             $data['posts']      = $posts;
+            $data['notices']    = $notices;
             
             $this->success_result($data);
 	}
