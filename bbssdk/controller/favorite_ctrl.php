@@ -17,7 +17,7 @@ class Favorite extends BaseCore
             $list = array();
             $idtypes = array('thread'=>'tid', 'forum'=>'fid', 'blog'=>'blogid', 'group'=>'gid', 'album'=>'albumid', 'space'=>'uid', 'article'=>'aid');
             $favid = empty($favid)?0:dintval($favid, is_array($favid));
-            $result = DB::fetch_all("SELECT * FROM %t WHERE favid in(%n)", ['home_favorite', $favid]);
+            $result = DB::fetch_all("SELECT * FROM %t WHERE favid in(%n)", array('home_favorite', $favid));
             if($result){
                 $icons = array(
                         'tid'=>'<img src="'.get_site_url().'static/image/feed/thread.gif" alt="thread" class="t" /> ',
@@ -173,6 +173,27 @@ class Favorite extends BaseCore
             $r = $this->_item($favid);
             return $this->success_result($r);       
         }
+        
+        public function get_status(){
+            global $_G;
+            $type = empty($_GET['type']) ? '' : $_GET['type'];
+            $id = empty($_GET['id']) ? 0 : intval($_GET['id']);
+            
+            $_G['uid'] = intval($_GET['uid']);
+            if(empty($_G['uid'])) {
+                return_status(601);
+            }
+            
+            $c = array("thread"=>"tid", "forum"=>"fid", "group"=>"gid", "blog"=>"blogid", "album"=>"albumid", "article"=>"aid", "space"=>"uid");
+            if(!isset($c[$type])){
+                return_status(602);
+            }
+            $idtype = $c[$type];
+            
+            $fav = C::t('home_favorite')->fetch_by_id_idtype($id, $idtype, $_G['uid']);
+            return $this->success_result($fav);  
+        }
+
         public function get_get(){
             global $_G;
             $_G['uid'] = intval($_GET['uid']);

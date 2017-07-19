@@ -53,7 +53,7 @@ class Notice extends BaseCore
         public function get_item(){
             global $_G;
             $noticeid = empty($_GET['noticeid'])?0:dintval($_GET['noticeid'], is_array($_GET['noticeid']));
-            $result = DB::fetch_all("SELECT * FROM %t WHERE id in(%n)", ['home_notification', $noticeid]);
+            $result = DB::fetch_all("SELECT * FROM %t WHERE id in(%n)", array('home_notification', $noticeid));
             return $this->success_result($result);
         }
         public function get_list(){
