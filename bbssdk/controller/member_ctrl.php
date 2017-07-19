@@ -23,6 +23,8 @@ class Member extends BaseCore
 		if($uid == $member['uid']){
 			$userinfo =  C::t('common_member')->fetch_all_stat_memberlist($member['username']);
 			$userinfo = array_merge($userinfo[$uid],$member);
+                        space_merge($userinfo, 'field_forum');
+                        space_merge($userinfo, 'profile');
 			$final = $this->relation_item($userinfo);
 		}
 		$this->success_result($final);
@@ -730,7 +732,16 @@ class Member extends BaseCore
 			'accessmasks' => (int) $item['accessmasks'],
 			'allowadmincp' => (int) $item['allowadmincp'],
 			'onlyacceptfriendpm' => (int) $item['onlyacceptfriendpm'],
-			'conisbind' => (int) $item['conisbind']
+			'conisbind' => (int) $item['conisbind'],
+                        'sightml' => $item['$item'],
+                        'birthyear' => $item['birthyear'],
+                        'birthmonth' => $item['birthmonth'],
+                        'birthday' => $item['birthday'],
+                        'resideprovince' => $item['resideprovince'],
+                        'residecity' => $item['residecity'],
+                        'residedist' => $item['residedist'],
+                        'residecommunity' => $item['residecommunity'],
+                        'residesuite' => $item['residesuite'],
 		);
 	}
 }

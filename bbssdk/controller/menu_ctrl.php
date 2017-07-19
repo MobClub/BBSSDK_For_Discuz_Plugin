@@ -86,7 +86,8 @@ class Menu extends BaseCore
 				'status' => empty($item['redirect']) ? (int) $item['status'] : 0,
 				'displayorder' => (int)$item['displayorder'],
 				'type' => $item['type'],
-				'description' => $item['description']
+				'description' => $item['description'],
+                                'viewperm' => $item['viewperm']?explode("\t", trim($item['viewperm'])):[]
 			);
 		}
 		return $newItem;
