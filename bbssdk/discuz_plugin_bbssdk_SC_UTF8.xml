@@ -14,7 +14,7 @@
 			<item id="datatables"><![CDATA[]]></item>
 			<item id="directory"><![CDATA[bbssdk/]]></item>
 			<item id="copyright"><![CDATA[mob.com]]></item>
-			<item id="version"><![CDATA[1.5.0]]></item>
+			<item id="version"><![CDATA[2.0.0]]></item>
 			<item id="__modules">
 				<item id="0">
 					<item id="name"><![CDATA[install]]></item>
@@ -88,5 +88,6 @@
 		<item id="installfile"><![CDATA[install.php]]></item>
 		<item id="uninstallfile"><![CDATA[uninstall.php]]></item>
 		<item id="checkfile"><![CDATA[check.php]]></item>
+                <item id="upgradefile"><![CDATA[upgrade.php]]></item>
 	</item>
 </root>

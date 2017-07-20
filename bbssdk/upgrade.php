@@ -125,3 +125,40 @@ END;";
 DB::query($sql);
 /* 通知模块结束 */
 
+/* 用户模块开始 */
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_memberfieldforum ;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_memberfieldforum ;";
+DB::query($sql);
+
+$sql = "CREATE TRIGGER bbssdk_afterinsert_on_memberfieldforum AFTER INSERT ON `".DB::table('common_member_field_forum')."` FOR EACH ROW \r\n
+BEGIN
+set @syncid=0;
+set @modifytime=0;
+set @synctime=0;
+SET @currtime = UNIX_TIMESTAMP(NOW());
+SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_member_sync')."` WHERE uid=@uid;
+if @syncid = 0 THEN
+        INSERT INTO `".DB::table('bbssdk_member_sync')."`(uid,modifytime,creattime,synctime,flag) VALUES(new.uid,@currtime,@currtime,0,2);
+END IF;
+END;";
+DB::query($sql);
+
+$sql = "CREATE TRIGGER bbssdk_afterupdate_on_memberfieldforum AFTER UPDATE ON `".DB::table('common_member_field_forum')."` FOR EACH ROW \r\n
+BEGIN
+set @syncid=0;
+set @modifytime=0;
+set @synctime=0;
+set @uid = old.uid;
+SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_member_sync')."` WHERE uid=@uid;
+SET @currtime = UNIX_TIMESTAMP(NOW());
+IF @syncid > 0 THEN
+        UPDATE `".DB::table('bbssdk_member_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+ELSE
+        INSERT INTO `".DB::table('bbssdk_member_sync')."`(uid,modifytime,creattime,synctime,flag) VALUES(@uid,@currtime,@currtime,0,2);
+END IF;
+END;";
+DB::query($sql);
+/* 用户模块结束 */
+
+$finish = TRUE;
