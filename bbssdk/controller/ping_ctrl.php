@@ -100,7 +100,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_notification_sync')->change_status($syncids);
             }
             
-            $data['time'] = DB::fetch_first('select UNIX_TIMESTAMP(NOW()) as timestamp')['timestamp'];
+            $data['t'] = DB::fetch_first('select UNIX_TIMESTAMP(NOW()) as timestamp')['timestamp'];
             
             $data['favorites']  = $favorites;
             $data['forums']     = $fids;
