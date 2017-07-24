@@ -17,7 +17,7 @@ class Ping extends BaseCore
 	{
             $t = intval($_GET['t']);
             //收藏
-            $favorites = $syncids = [];
+            $favorites = $syncids = array();
             $favs = c::t('bbssdk_favorite_sync')->unsync_list_by_time($t,100);
             if($favs){
                 foreach ($favs as $fav){
@@ -29,7 +29,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_favorite_sync')->change_status($syncids);
             }
             //论坛版块
-            $fids = $syncids = [];
+            $fids = $syncids = array();
             $menus = c::t('bbssdk_menu_sync')->unsync_list_by_time($t,100);
             if($menus){
                 foreach ($menus as $menu){
@@ -41,7 +41,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_menu_sync')->change_status($syncids);
             }
             //用户组
-            $groupids = $syncids = [];
+            $groupids = $syncids = array();
             $usergroups = c::t('bbssdk_usergroup_sync')->unsync_list_by_time($t,100);
             if($usergroups){
                 foreach ($usergroups as $usergroup){
@@ -52,7 +52,7 @@ class Ping extends BaseCore
                 }
                 c::t('bbssdk_usergroup_sync')->change_status($syncids);
             }
-            $uids = $syncids = [];
+            $uids = $syncids = array();
             $members = c::t('bbssdk_member_sync')->unsync_list_by_time($t,100);
             if($members){
                 foreach ($members as $member){
@@ -64,7 +64,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_member_sync')->change_status($syncids);
             }
             //主题
-            $threads = $syncids = [];
+            $threads = $syncids = array();
             $forums = c::t('bbssdk_forum_sync')->unsync_list_by_time($t,100);
             if($forums){
                 foreach ($forums as $forum){
@@ -76,7 +76,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_forum_sync')->change_status($syncids);
             }
             //评论
-            $posts = $syncids = [];
+            $posts = $syncids = array();
             $comments = c::t('bbssdk_comment_sync')->unsync_list_by_time($t,100);
             if($comments){
                 foreach ($comments as $comment){
@@ -88,7 +88,7 @@ class Ping extends BaseCore
                 c::t('bbssdk_comment_sync')->change_status($syncids);
             }
             //通知
-            $notices = $syncids = [];
+            $notices = $syncids = array();
             $notifications = c::t('bbssdk_notification_sync')->unsync_list_by_time($t,100);
             if($notifications){
                 foreach ($notifications as $n){
@@ -100,8 +100,8 @@ class Ping extends BaseCore
                 c::t('bbssdk_notification_sync')->change_status($syncids);
             }
             
-            $data['t'] = DB::fetch_first('select UNIX_TIMESTAMP(NOW()) as timestamp')['timestamp'];
-            
+            $t = DB::fetch_first('select UNIX_TIMESTAMP(NOW()) as timestamp');
+            $data['t']          = $t['timestamp'];
             $data['favorites']  = $favorites;
             $data['forums']     = $fids;
             $data['usergroups'] = $groupids;
