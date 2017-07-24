@@ -13,7 +13,7 @@ class Notice extends BaseCore
             if(empty($_G['uid'])) {
                 return_status(601);
             }
-            $data = [];
+            $data = array();
             $_G['member'] = getuserbyuid($_G['uid'], 1);
            
             if($_G['member']['newprompt']) {
@@ -31,7 +31,7 @@ class Notice extends BaseCore
                 return_status(601);
             }
             $this->_init_notice($_G['uid']);
-            $data = [];
+            $data = array();
             if($_G['member']['newprompt']) {
                 $data['newpm']     = $_G['member']['newpm'];
                 $data['newprompt'] = $_G['member']['newprompt'];
