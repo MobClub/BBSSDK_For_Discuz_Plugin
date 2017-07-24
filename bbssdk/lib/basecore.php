@@ -11,6 +11,7 @@ class BaseCore
 	protected $charset = 'UTF-8';
 	protected $setting;
 	private $params;
+        var $cachelist = array();
 	protected $sync_mods = array(
 		'forum'   => array('bbssdk_forum_sync','dateline',array('fid','tid')),
 		'comment' => array('bbssdk_comment_sync','dateline',array('fid','tid','pid')),
@@ -21,6 +22,8 @@ class BaseCore
 		global $_G;
 		$this->initParams();
 		if(!( BBSSDK_DEBUG && isset($_REQUEST['debug']))) $this->check_sign();
+                
+                $this->_initUser();
 		$this->bbcode = isset($_G['setting']['bbclosed']) && $_G['setting']['bbclosed'] ? 1 : 0;
 		$this->charset = strtoupper($_G['charset']);
 		$this->setting = C::app()->var['setting'];
@@ -71,8 +74,25 @@ class BaseCore
 			$this->params[$key] = $value;
 		}
 	}
+        private function _initUser(){
+            global $_G;
+            if($this->uid){
+                $user = getuserbyuid($this->uid, 1);
+                if($user){
+                    $_G['groupid'] = $user['groupid'];
+                    $this->cachelist[] = 'usergroup_'.$user['groupid'];
+                    if($user['adminid'] > 0 && $user['groupid'] != $user['adminid']) {
+                        $this->cachelist[] = 'admingroup_'.$user['adminid'];
+                    }
+                    !empty($this->cachelist) && loadcache($this->cachelist);
+                    if($_G['group']['radminid'] == 0 && $user['adminid'] > 0 && $user['groupid'] != $user['adminid']&& !empty($_G['cache']['admingroup_'.$user['adminid']])) {
+                            $_G['group'] = array_merge($_G['group'], $_G['cache']['admingroup_'.$user['adminid']]);
+                    }
+                }
+            }
+        }
 
-	public function bbcode_encode($message)
+        public function bbcode_encode($message)
 	{
 		require_once libfile('class/bbcode');
 		require_once libfile('function/editor');

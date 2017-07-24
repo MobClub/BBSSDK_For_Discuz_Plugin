@@ -4,6 +4,8 @@ require_once libfile('function/misc');
 require_once libfile('function/mail');
 require_once libfile('function/member');
 require_once libfile('class/member');
+require_once libfile('function/discuzcode');
+require_once libfile('function/profile');
 
 class Member extends BaseCore
 {
@@ -530,6 +532,109 @@ class Member extends BaseCore
 			$this->success_result($final,join(',',$success_msg));
 		}
 	}
+        //version2.0
+        public function post_profile()
+	{
+            global $_G;
+            $uid = intval($this->uid);
+            $clientip = urldecode($this->clientip);
+            $gender = $this->gender;
+            $avatar_big = urldecode($this->avatar_big);
+            $avatar_middle = urldecode($this->avatar_middle);
+            $avatar_small = urldecode($this->avatar_small);
+            $sightml = urldecode($this->sightml);
+            $birthday = $this->birthday;
+            $residence = trim(urldecode($this->residence));
+            
+            if(!$uid || !$clientip || $gender>2)
+                    return_status(403);
+
+            if(!isset($gender) && !(!empty($avatar_big) && !empty($avatar_middle) && !empty($avatar_small)))
+                    return_status(403);
+
+            loaducenter();
+            $member = getuserbyuid($uid, 1);
+            if(!$member){
+                    return_status(405,'不存在的用户');
+            }
+            if($birthday&&(!strtotime($birthday)||(strtotime($birthday)&&!strpos($birthday, '-')))){
+                return_status(403,'生日格式错误');
+            }
+            $setarr = array();
+            if($residence){
+                $rArr = explode('-', $residence);
+                $setarr['resideprovince'] = isset($rArr[0])?$rArr[0]:'';
+                $setarr['residecity'] = isset($rArr[1])?$rArr[1]:'';
+                $setarr['residedist'] = isset($rArr[2])?$rArr[2]:'';
+                $setarr['residecommunity'] = isset($rArr[3])?$rArr[3]:'';
+            }
+            
+            $error_arr = array();
+            $success_msg = array();
+
+            if(isset($gender))
+            {
+                    $gender = intval($gender)>2 ? 0 : intval($gender);
+                    if(DB::query("update ".DB::table('common_member_profile')." set gender=$gender where uid=$uid")){
+                            array_push($success_msg, '性别更新成功');
+                    }
+            }
+            if(!empty($avatar_big) && !empty($avatar_middle) && !empty($avatar_small))
+            {
+                    $uc_input = uc_api_input("uid=$uid");
+                    $uc_avatarurl = UC_API.'/index.php?m=user&inajax=1&a=rectavatar&appid='.UC_APPID.'&input='.$uc_input.'&agent='.md5($_SERVER['HTTP_USER_AGENT']).'&avatartype=virtual';
+                    $post_data = array(
+                            'urlReaderTS' => (int) microtime(true)*1000,
+                            'avatar1' => flashdata_encode(file_get_contents($avatar_big)),
+                            'avatar2' => flashdata_encode(file_get_contents($avatar_middle)),
+                            'avatar3' => flashdata_encode(file_get_contents($avatar_small))
+                    );
+                    $response = push_http_query($uc_avatarurl,$post_data,'rectavatar');
+                    if(!preg_match("%success=\"1\"%is", $response)){
+                            write_log($uc_avatarurl.'###post_data=>##'.json_encode($post_data).'###response=>##'.$response);
+                            array_push($error_arr, '更新头像失败');
+                    }else{
+                            array_push($success_msg, '更新头像成功');
+                    }
+            }
+            $forum = array();
+            if($sightml){
+                loadcache(array('smilies', 'smileytypes'));
+                $sightml = cutstr($sightml, $_G['group']['maxsigsize'], '');
+                foreach($_G['cache']['smilies']['replacearray'] AS $skey => $smiley) {
+                        $_G['cache']['smilies']['replacearray'][$skey] = '[img]'.$_G['setting']['siteurl'].'static/image/smiley/'.$_G['cache']['smileytypes'][$_G['cache']['smilies']['typearray'][$skey]]['directory'].'/'.$smiley.'[/img]';
+                }
+                $sightml = preg_replace($_G['cache']['smilies']['searcharray'], $_G['cache']['smilies']['replacearray'], trim($sightml));
+                $forum['sightml'] = discuzcode($sightml, 1, 0, 0, 0, $_G['group']['allowsigbbcode'], $_G['group']['allowsigimgcode'], 0, 0, 1);;
+                if(!$_G['group']['maxsigsize']) {
+                        $forum['sightml'] = '';
+                }
+                C::t('common_member_field_forum')->update($uid, $forum);
+            }
+            if($birthday){
+                $b = explode('-', $birthday);
+                $setarr['constellation'] = get_constellation($b[1], $b[2]);
+                $setarr['zodiac'] = get_zodiac($b[0]);
+                $setarr['birthyear']  = $b[0];
+                $setarr['birthmonth'] = $b[1];
+                $setarr['birthday']   = $b[2];
+            }
+            if($setarr){
+                C::t('common_member_profile')->update($uid, $setarr);
+            }
+            if(count($error_arr)>0) {
+                    return_status(405,join(',',$error_arr));
+            }else{
+                    $username = $member['username'];
+                    $userinfo =  C::t('common_member')->fetch_all_stat_memberlist($username);
+                    $member = C::t('common_member')->fetch_by_username($username);
+                    $userinfo = array_merge($userinfo[$uid],$member);
+                    space_merge($userinfo, 'field_forum');
+                    space_merge($userinfo, 'profile');
+                    $final = $this->relation_item($userinfo);
+                    $this->success_result($final,join(',',$success_msg));
+            }
+	}
         public function post_support(){
             global $_G;
             $_G['uid'] = intval($this->uid);
@@ -733,7 +838,7 @@ class Member extends BaseCore
 			'allowadmincp' => (int) $item['allowadmincp'],
 			'onlyacceptfriendpm' => (int) $item['onlyacceptfriendpm'],
 			'conisbind' => (int) $item['conisbind'],
-                        'sightml' => $item['$item'],
+                        'sightml' => $item['sightml'],
                         'birthyear' => $item['birthyear'],
                         'birthmonth' => $item['birthmonth'],
                         'birthday' => $item['birthday'],
