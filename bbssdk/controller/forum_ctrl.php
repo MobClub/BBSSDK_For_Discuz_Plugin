@@ -339,6 +339,8 @@ class Forum extends BaseCore
 					'highlight' => (int) $item['highlight'],
 					'lastpost' => (int) $item['lastpost'],
 					'lastposter' => $item['lastposter'],
+                                        'favtimes' => (int) $item['favtimes'],
+                                        'recommend_add' => (int) $item['recommend_add'],
 					'message' => isset($current['mdtype']) && $current['mdtype'] == 1 ? $this->MarkdownToHtml->transform($current['message']) : discuzcode($current['message'], $current['smileyoff'], $current['bbcodeoff'], $current['htmlon']),
 				);
 				$attachment = array();
