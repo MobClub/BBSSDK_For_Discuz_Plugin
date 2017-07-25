@@ -51,7 +51,7 @@ class Favorite extends BaseCore
             }
             return array_values($list);
         }
-        public function get_add(){
+        public function post_add(){
             require_once libfile('function/home');
             global $_G;
             $_G['uid'] = intval($_GET['uid']);
@@ -74,7 +74,7 @@ class Favorite extends BaseCore
                             $idtype = 'tid';
                             $thread = C::t('forum_thread')->fetch($id);
                             $title = $thread['subject'];
-                            $icon = '<img src="'.get_site_url().'static/image/feed/thread.gif" alt="thread" class="vm" /> ';
+                            $icon = get_site_url().'static/image/feed/thread.gif';
                             break;
                     case 'forum':
                             $idtype = 'fid';
@@ -83,39 +83,39 @@ class Favorite extends BaseCore
                             $forum = $_G['cache']['forums'][$id];
                             if(!$forum['viewperm'] || ($forum['viewperm'] && forumperm($forum['viewperm'])) || strstr($forum['users'], "\t$_G[uid]\t")) {
                                     $title = $foruminfo['status'] != 3 ? $foruminfo['name'] : '';
-                                    $icon = '<img src="'.get_site_url().'static/image/feed/discuz.gif" alt="forum" class="vm" /> ';
+                                    $icon = get_site_url().'static/image/feed/discuz.gif';
                             }
                             break;
                     case 'blog':
                             $idtype = 'blogid';
                             $bloginfo = C::t('home_blog')->fetch($id);
                             $title = ($bloginfo['uid'] == $spaceuid) ? $bloginfo['subject'] : '';
-                            $icon = '<img src="'.get_site_url().'static/image/feed/blog.gif" alt="blog" class="vm" /> ';
+                            $icon = get_site_url().'static/image/feed/blog.gif';
                             break;
                     case 'group':
                             $idtype = 'gid';
                             $foruminfo = C::t('forum_forum')->fetch($id);
                             $title = $foruminfo['status'] == 3 ? $foruminfo['name'] : '';
-                            $icon = '<img src="'.get_site_url().'static/image/feed/group.gif" alt="group" class="vm" /> ';
+                            $icon = get_site_url().'static/image/feed/group.gif';
                             break;
                     case 'album':
                             $idtype = 'albumid';
                             $result = C::t('home_album')->fetch($id, $spaceuid);
                             $title = $result['albumname'];
-                            $icon = '<img src="'.get_site_url().'static/image/feed/album.gif" alt="album" class="vm" /> ';
+                            $icon = get_site_url().'static/image/feed/album.gif';
                             break;
                     case 'space':
                             $idtype = 'uid';
                             $_member = getuserbyuid($id);
                             $title = $_member['username'];
                             $unset($_member);
-                            $icon = '<img src="'.get_site_url().'static/image/feed/profile.gif" alt="space" class="vm" /> ';
+                            $icon = get_site_url().'static/image/feed/profile.gif';
                             break;
                     case 'article':
                             $idtype = 'aid';
                             $article = C::t('portal_article_title')->fetch($id);
                             $title = $article['title'];
-                            $icon = '<img src="'.get_site_url().'static/image/feed/article.gif" alt="article" class="vm" /> ';
+                            $icon = get_site_url().'static/image/feed/article.gif';
                             break;
             }
             if(empty($idtype) || empty($title)) {
@@ -221,13 +221,13 @@ class Favorite extends BaseCore
             $count = C::t('home_favorite')->count_by_uid_idtype($_G['uid'], $idtype, $favid);
             if($count) {
                     $icons = array(
-                            'tid'=>'<img src="'.get_site_url().'static/image/feed/thread.gif" alt="thread" class="t" /> ',
-                            'fid'=>'<img src="'.get_site_url().'static/image/feed/discuz.gif" alt="forum" class="t" /> ',
-                            'blogid'=>'<img src="'.get_site_url().'static/image/feed/blog.gif" alt="blog" class="t" /> ',
-                            'gid'=>'<img src="'.get_site_url().'static/image/feed/group.gif" alt="group" class="t" /> ',
-                            'uid'=>'<img src="'.get_site_url().'static/image/feed/profile.gif" alt="space" class="t" /> ',
-                            'albumid'=>'<img src="'.get_site_url().'static/image/feed/album.gif" alt="album" class="t" /> ',
-                            'aid'=>'<img src="'.get_site_url().'static/image/feed/article.gif" alt="article" class="t" /> ',
+                            'tid'    => get_site_url().'static/image/feed/thread.gif',
+                            'fid'    => get_site_url().'static/image/feed/discuz.gif',
+                            'blogid' => get_site_url().'static/image/feed/blog.gif',
+                            'gid'    => get_site_url().'static/image/feed/group.gif',
+                            'uid'    => get_site_url().'static/image/feed/profile.gif',
+                            'albumid'=> get_site_url().'static/image/feed/album.gif',
+                            'aid'    => get_site_url().'static/image/feed/article.gif',
                     );
                     $articles = array();
                     foreach(C::t('home_favorite')->fetch_all_by_uid_idtype($_G['uid'], $idtype, $favid, $start,$perpage) as $value) {
