@@ -87,7 +87,9 @@ class Menu extends BaseCore
 				'displayorder' => (int)$item['displayorder'],
 				'type' => $item['type'],
 				'description' => $item['description'],
-                                'viewperm' => $item['viewperm']?explode("\t", trim($item['viewperm'])):array()
+                                'viewperm' => $item['viewperm']?explode("\t", trim($item['viewperm'])):array(),
+                                'postperm' => $item['postperm']?explode("\t", trim($item['postperm'])):array(),
+                                'replyperm' => $item['replyperm']?explode("\t", trim($item['replyperm'])):array()
 			);
 		}
 		return $newItem;
