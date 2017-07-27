@@ -20,19 +20,20 @@ class Favorite extends BaseCore
             $result = DB::fetch_all("SELECT * FROM %t WHERE favid in(%n)", array('home_favorite', $favid));
             if($result){
                 $icons = array(
-                        'tid'=>'<img src="'.get_site_url().'static/image/feed/thread.gif" alt="thread" class="t" /> ',
-                        'fid'=>'<img src="'.get_site_url().'static/image/feed/discuz.gif" alt="forum" class="t" /> ',
-                        'blogid'=>'<img src="'.get_site_url().'static/image/feed/blog.gif" alt="blog" class="t" /> ',
-                        'gid'=>'<img src="'.get_site_url().'static/image/feed/group.gif" alt="group" class="t" /> ',
-                        'uid'=>'<img src="'.get_site_url().'static/image/feed/profile.gif" alt="space" class="t" /> ',
-                        'albumid'=>'<img src="'.get_site_url().'static/image/feed/album.gif" alt="album" class="t" /> ',
-                        'aid'=>'<img src="'.get_site_url().'static/image/feed/article.gif" alt="article" class="t" /> ',
+                        'tid'=>get_site_url().'static/image/feed/thread.gif',
+                        'fid'=>get_site_url().'static/image/feed/discuz.gif',
+                        'blogid'=>get_site_url().'static/image/feed/blog.gif',
+                        'gid'=>get_site_url().'static/image/feed/group.gif',
+                        'uid'=>get_site_url().'static/image/feed/profile.gif',
+                        'albumid'=>get_site_url().'static/image/feed/album.gif',
+                        'aid'=>get_site_url().'static/image/feed/article.gif',
                 );
                 foreach ($result as &$value){
                     $value['icon'] = isset($icons[$value['idtype']]) ? $icons[$value['idtype']] : '';
                     $value['url'] = makeurl($value['id'], $value['idtype'], $value['spaceuid']);
                     $value['description'] = !empty($value['description']) ? nl2br($value['description']) : '';
-                    $value['type'] = array_flip($idtypes)[$value['idtype']];
+                    $type = array_flip($idtypes);
+                    $value['type'] = $type[$value['idtype']];
                     $list[$value['favid']] = $value;
                     if($value['idtype'] == 'aid') {
                             $articles[$value['favid']] = $value['id'];
@@ -234,7 +235,8 @@ class Favorite extends BaseCore
                             $value['icon'] = isset($icons[$value['idtype']]) ? $icons[$value['idtype']] : '';
                             $value['url'] = makeurl($value['id'], $value['idtype'], $value['spaceuid']);
                             $value['description'] = !empty($value['description']) ? nl2br($value['description']) : '';
-                            $value['type'] = array_flip($idtypes)[$value['idtype']];
+                            $type = array_flip($idtypes);
+                            $value['type'] = $type[$value['idtype']];
                             $list[$value['favid']] = $value;
                             if($value['idtype'] == 'aid') {
                                     $articles[$value['favid']] = $value['id'];

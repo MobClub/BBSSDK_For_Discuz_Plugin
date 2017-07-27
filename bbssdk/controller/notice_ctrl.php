@@ -204,4 +204,60 @@ class Notice extends BaseCore
             $data['list'] = array_values($list);
             $this->success_result($data);
         }
+        public function post_read(){
+            global $_G;
+            $uid = $_G['uid'] = intval($_GET['uid']);
+            
+            if(empty($_G['uid'])) {
+                return_status(601);
+            }
+            $noticeid = empty($_GET['noticeid'])?0:dintval($_GET['noticeid'], is_array($_GET['noticeid']));
+            $result = DB::fetch_all("SELECT * FROM %t WHERE id in(%n) and uid = %d", array('home_notification', $noticeid,$_G['uid']));
+            
+            $unread = $type = array();
+            if($result){
+                foreach ($result as $r){
+                    if($r['new']){
+                        $unread[] = $r['id'];
+                        $type[$r['type']][] = $r['id']; 
+                    }
+                }
+            
+                $this->_init_notice($_G['uid']);
+                if($unread&&$_G['member']['newprompt_num']) {//计数更新
+                    $tmpprompt = $_G['member']['newprompt_num'];
+                    $num = 0;
+                    $updateprompt = 0;
+
+                    foreach ($type as $t=>$v){
+                        if(!empty($tmpprompt[$t])) {
+                            $tmpprompt[$t] -= count($v);
+                            if($tmpprompt[$t]<=0){
+                                unset($tmpprompt[$t]);
+                            }
+                            $updateprompt = true;
+                        }
+                    }
+
+                    foreach($tmpprompt as $key => $val) {
+                            $num += $val;
+                    }
+                    if($num) {
+                            if($updateprompt) {
+                                    C::t('common_member_newprompt')->update($uid, array('data' => serialize($tmpprompt)));
+                                    C::t('common_member')->update($uid, array('newprompt'=>$num));
+                            }
+                    } else {
+                            C::t('common_member_newprompt')->delete($_G['uid']);
+                            C::t('common_member')->update($_G['uid'], array('newprompt'=>0));
+                    }
+                }
+                if($unread){
+                    DB::update('home_notification', array('new'=>0,'from_num'=>0), "id in(". trim(implode(',', $unread),',').")");
+                }
+            }else{
+                return_status(403,'未查询到消息记录');
+            }
+            return_status(200,'操作成功');
+        }
 }

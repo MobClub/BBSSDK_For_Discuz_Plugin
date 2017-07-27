@@ -686,6 +686,56 @@ class Member extends BaseCore
 
             return_status(200,'操作成功');
         }
+        public function post_recommend(){
+            require_once libfile('function/forum');
+            global $_G;
+            $_G['uid'] = intval($this->uid);
+            $_G['tid'] = intval($this->tid);
+            $do = $this->do?$this->do:'add';
+            
+            if(empty($_G['uid'])){
+                return_status(601);
+            }
+            $thread = C::t('forum_thread')->fetch($_G['tid']);
+            
+            if(!$thread) {
+		return_status(612);
+            }
+            loadcache('setting');
+            if($thread['authorid'] == $_G['uid'] && !$_G['setting']['recommendthread']['ownthread']) {
+                    return_status(613);
+            }
+            if(C::t('forum_memberrecommend')->fetch_by_recommenduid_tid($_G['uid'], $_G['tid'])) {
+                    return_status(614);
+            }
+
+            $recommendcount = C::t('forum_memberrecommend')->count_by_recommenduid_dateline($_G['uid'], $_G['timestamp']-86400);
+            if($_G['setting']['recommendthread']['daycount'] && $recommendcount >= $_G['setting']['recommendthread']['daycount']) {
+                    return_status(615);
+            }
+
+            $_G['group']['allowrecommend'] = intval($_GET['do'] == 'add' ? $_G['group']['allowrecommend'] : -$_G['group']['allowrecommend']);
+            $fieldarr = array();
+            if($_GET['do'] == 'add') {
+                    $heatadd = 'recommend_add=recommend_add+1';
+                    $fieldarr['recommend_add'] = 1;
+            } else {
+                    $heatadd = 'recommend_sub=recommend_sub+1';
+                    $fieldarr['recommend_sub'] = 1;
+            }
+
+            update_threadpartake($_G['tid']);
+            $fieldarr['heats'] = 0;
+            $fieldarr['recommends'] = $_G['group']['allowrecommend'];
+            C::t('forum_thread')->increase($_G['tid'], $fieldarr);
+            C::t('forum_thread')->update($_G['tid'], array('lastpost' => TIMESTAMP));
+            C::t('forum_memberrecommend')->insert(array('tid'=>$_G['tid'], 'recommenduid'=>$_G['uid'], 'dateline'=>$_G['timestamp']));
+            
+            $data['recommend_add'] = intval($_GET['do'] == 'add'?$thread['recommend_add']+1:$thread['recommend_add']);
+            $data['recommend_sub'] = intval($_GET['do'] == 'add'?$thread['recommend_sub']:$thread['recommend_sub']-1);
+            $data['recommends'] = intval($_GET['do'] == 'add'?$thread['recommends']+1:$thread['recommends']-1);
+            $this->success_result($data);
+        }
         public function post_follow(){
             global $_G;
             $_G['uid']  = intval($this->uid);
