@@ -198,8 +198,13 @@ class Forum extends BaseCore
 
 		$this->success_result($data);
 	}
-
-	public function put_item()
+        public function post_edit(){
+            $this->put_item();
+        }
+        public function post_delete(){
+            $this->delete_item();
+        }
+        public function put_item()
 	{
 		global $_G;
 		$fid = intval($this->fid);
