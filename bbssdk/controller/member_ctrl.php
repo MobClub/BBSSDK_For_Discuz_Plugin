@@ -689,7 +689,7 @@ class Member extends BaseCore
             global $_G;
             $_G['uid'] = intval($this->uid);
             $_G['tid'] = intval($this->tid);
-            $do = $this->do?$this->do:'add';
+            $_GET['do'] = $do = $this->do?$this->do:'add';
             
             if(empty($_G['uid'])){
                 return_status(601);
