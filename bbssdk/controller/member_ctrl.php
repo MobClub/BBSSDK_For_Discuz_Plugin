@@ -25,8 +25,6 @@ class Member extends BaseCore
 		if($uid == $member['uid']){
 			$userinfo =  C::t('common_member')->fetch_all_stat_memberlist($member['username']);
 			$userinfo = array_merge($userinfo[$uid],$member);
-                        space_merge($userinfo, 'field_forum');
-                        space_merge($userinfo, 'profile');
 			$final = $this->relation_item($userinfo);
 		}
 		$this->success_result($final);
@@ -862,6 +860,8 @@ class Member extends BaseCore
 
         private function relation_item($item)
 	{
+                space_merge($item, 'field_forum');
+                space_merge($item, 'profile');
 		return array(
 			'uid' => (int)$item['uid'],
 			'gender' => (int) $item['gender'],
