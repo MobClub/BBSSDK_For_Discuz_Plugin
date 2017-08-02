@@ -54,7 +54,7 @@ class Notice extends BaseCore
             global $_G;
             $noticeid = empty($_GET['noticeid'])?0:dintval($_GET['noticeid'], is_array($_GET['noticeid']));
             $result = DB::fetch_all("SELECT * FROM %t WHERE id in(%n)", array('home_notification', $noticeid));
-            return $this->success_result($result);
+            return $this->success_result(array_map("prepend_site_url",$result));
         }
         public function get_list(){
             require_once libfile('function/home');
@@ -201,7 +201,7 @@ class Notice extends BaseCore
             $data['currpage']    = $page;
             $data['nextpage']    = $page+1;
             $data['prepage']     = $page>1?$page-1:1;
-            $data['list'] = array_values($list);
+            $data['list'] = array_map("prepend_site_url",array_values($list));
             $this->success_result($data);
         }
         public function post_read(){

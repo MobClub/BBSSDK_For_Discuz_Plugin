@@ -174,7 +174,9 @@ function get_site_url(){
     $siteurl = !empty($_G['setting']['siteurl'])?$_G['setting']['siteurl']:'http://'.$_SERVER['HTTP_HOST'];
     return rtrim($siteurl,'/').'/';
 }
-
+function prepend_site_url($con){
+    return preg_replace("/href=[\'\"]([^\'^\"]+)[\'\"]/is", "href='".get_site_url()."$1'",$con);
+}
 function write_log($message,$type='error') 
 {
     $logTypes = BBSSDK_DEBUG ? array('error','warning','debug') : array('error');
