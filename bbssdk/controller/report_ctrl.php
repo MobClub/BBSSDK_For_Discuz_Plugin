@@ -15,14 +15,13 @@ class Report extends BaseCore
             }
             $user = getuserbyuid($_G['uid'], 1);
             $_G['username'] = $user['username'];
-            $rtype = $_GET['rtype']?$_GET['rtype']:'post';
+            $rtype = $_GET['rtype'];
             $rid = intval($_GET['rid']);
-            $tid = intval($_GET['tid']);
             $fid = intval($_GET['fid']);
             $uid = intval($_GET['uid']);
             $default_url = array(
                     'user' => 'home.php?mod=space&uid=',
-                    'post' => 'forum.php?mod=redirect&goto=findpost&ptid='.$tid.'&pid=',
+                    'post' => 'forum.php?mod=redirect&goto=findpost&ptid=0&pid=',
                     'thread' => 'forum.php?mod=viewthread&tid=',
                     'group' => 'forum.php?mod=group&fid=',
                     'album' => 'home.php?mod=space&do=album&uid='.$uid.'&id=',
@@ -31,10 +30,11 @@ class Report extends BaseCore
             );
             $url = '';
             if($rid && !empty($default_url[$rtype])) {
-                    $url = $default_url[$rtype].intval($rid);
+                $url = $default_url[$rtype].intval($rid);
             } else {
-                    $url = addslashes(dhtmlspecialchars(base64_decode($_GET['url'])));
-                    $url = preg_match("/^http[s]?:\/\/[^\[\"']+$/i", trim($url)) ? trim($url) : '';
+                return_status(403,'rid为空或rtype不存在');
+//                $url = addslashes(dhtmlspecialchars(base64_decode($_GET['url'])));
+//                $url = preg_match("/^http[s]?:\/\/[^\[\"']+$/i", trim($url)) ? trim($url) : '';
             }
 //            if(empty($url) || empty($_G['inajax'])) {
 //                    showmessage('report_parameters_invalid');
