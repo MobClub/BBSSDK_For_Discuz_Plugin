@@ -547,8 +547,8 @@ class Member extends BaseCore
             if(!$uid || !$clientip || $gender>2)
                     return_status(403);
 
-            if(!isset($gender) && !(!empty($avatar_big) && !empty($avatar_middle) && !empty($avatar_small)))
-                    return_status(403);
+            if(!isset($gender) && !(!empty($avatar_big) && !empty($avatar_middle) && !empty($avatar_small))&&!isset($sightml)&&!isset($birthday)&&!isset($residence))
+                    return_status(403,'没有内容被修改');
 
             loaducenter();
             $member = getuserbyuid($uid, 1);
