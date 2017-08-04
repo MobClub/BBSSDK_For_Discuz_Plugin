@@ -598,15 +598,15 @@ class Member extends BaseCore
             $forum = array();
             if($sightml){
                 loadcache(array('smilies', 'smileytypes'));
-                $sightml = cutstr($sightml, $_G['group']['maxsigsize'], '');
+                //$sightml = cutstr($sightml, $_G['group']['maxsigsize'], '');
                 foreach($_G['cache']['smilies']['replacearray'] AS $skey => $smiley) {
                         $_G['cache']['smilies']['replacearray'][$skey] = '[img]'.$_G['setting']['siteurl'].'static/image/smiley/'.$_G['cache']['smileytypes'][$_G['cache']['smilies']['typearray'][$skey]]['directory'].'/'.$smiley.'[/img]';
                 }
                 $sightml = preg_replace($_G['cache']['smilies']['searcharray'], $_G['cache']['smilies']['replacearray'], trim($sightml));
                 $forum['sightml'] = discuzcode($sightml, 1, 0, 0, 0, $_G['group']['allowsigbbcode'], $_G['group']['allowsigimgcode'], 0, 0, 1);;
-                if(!$_G['group']['maxsigsize']) {
-                        $forum['sightml'] = '';
-                }
+//                if(!$_G['group']['maxsigsize']) {
+//                        $forum['sightml'] = '';
+//                }
                 C::t('common_member_field_forum')->update($uid, $forum);
             }
             if($birthday){
