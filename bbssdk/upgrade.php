@@ -137,6 +137,7 @@ set @syncid=0;
 set @modifytime=0;
 set @synctime=0;
 SET @currtime = UNIX_TIMESTAMP(NOW());
+set @uid = new.uid;
 SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_member_sync')."` WHERE uid=@uid;
 if @syncid = 0 THEN
         INSERT INTO `".DB::table('bbssdk_member_sync')."`(uid,modifytime,creattime,synctime,flag) VALUES(new.uid,@currtime,@currtime,0,2);
