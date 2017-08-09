@@ -73,7 +73,6 @@ class Forum extends BaseCore
 
 	public function get_item()
 	{
-		$fid = intval($_REQUEST['fid']);
 		$tid = intval($_REQUEST['tid']);
 		if(!$fid || !$tid) return_status(403);
 
@@ -83,7 +82,7 @@ class Forum extends BaseCore
 
 		$data = $this->relation_item($item,$current);
 
-		if($data['fid'] != $fid || $data['tid'] != $tid) $data = null;
+		if($data['tid'] != $tid) $data = null;
 
 		$this->success_result($data);
 	}
