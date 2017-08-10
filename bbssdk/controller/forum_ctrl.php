@@ -74,15 +74,13 @@ class Forum extends BaseCore
 	public function get_item()
 	{
 		$tid = intval($_REQUEST['tid']);
-		if(!$fid || !$tid) return_status(403);
+		if(!$tid) return_status(403);
 
 		$item = c::t('forum_thread')->fetch_by_tid_displayorder($tid);
 		
 		$current = c::t('forum_post')->fetch_threadpost_by_tid_invisible($item['tid']);
 
 		$data = $this->relation_item($item,$current);
-
-		if($data['tid'] != $tid) $data = null;
 
 		$this->success_result($data);
 	}
