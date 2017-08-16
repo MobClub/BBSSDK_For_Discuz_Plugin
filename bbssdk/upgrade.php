@@ -140,7 +140,7 @@ SET @currtime = UNIX_TIMESTAMP(NOW());
 set @uid = new.uid;
 SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_member_sync')."` WHERE uid=@uid;
 if @syncid = 0 THEN
-        INSERT INTO `".DB::table('bbssdk_member_sync')."`(uid,modifytime,creattime,synctime,flag) VALUES(new.uid,@currtime,@currtime,0,2);
+        INSERT INTO `".DB::table('bbssdk_member_sync')."`(uid,modifytime,creattime,synctime,flag) VALUES(@uid,@currtime,@currtime,0,2);
 END IF;
 END;";
 DB::query($sql);
@@ -161,5 +161,22 @@ END IF;
 END;";
 DB::query($sql);
 /* 用户模块结束 */
+/* 1.5 触发器 fix */
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_member;";
+DB::query($sql);
 
+$sql = "CREATE TRIGGER bbssdk_afterinsert_on_member AFTER INSERT ON `".DB::table('common_member')."` FOR EACH ROW \r\n
+BEGIN
+set @syncid=0;
+set @modifytime=0;
+set @synctime=0;
+SET @currtime = UNIX_TIMESTAMP(NOW());
+set @uid = new.uid;
+SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_member_sync')."` WHERE uid=@uid;
+if @syncid = 0 THEN
+        INSERT INTO `".DB::table('bbssdk_member_sync')."`(uid,modifytime,creattime,synctime,flag) VALUES(@uid,@currtime,@currtime,0,1);
+END IF;
+END;";
+DB::query($sql);
+/* 1.5 触发器 fix结束 */
 $finish = TRUE;
