@@ -279,52 +279,31 @@ class Favorite extends BaseCore
             if(empty($_G['uid'])) {
                 return_status(601);
             }
-            if($_GET['checkall']) {
-		if($_GET['favorite']) {
-                    $_GET['favorite'] = dintval($_GET['favorite'], is_array($_GET['favorite']));
-                    $deletecounter = array();
-                    $data = C::t('home_favorite')->fetch_all($_GET['favorite']);
-                    foreach($data as $dataone) {
-                            switch($dataone['idtype']) {
-                                    case 'fid':
-                                            $deletecounter['fids'][] = $dataone['id'];
-                                            break;
-                                    default:
-                                            break;
-                            }
-                    }
-                    if($deletecounter['fids']) {
-                            C::t('forum_forum')->update_forum_counter($deletecounter['fids'], 0, 0, 0, 0, -1);
-                    }
-                    C::t('home_favorite')->delete($_GET['favorite'], false, $_G['uid']);
-                    if($_G['setting']['cloud_status']) {
-                            $favoriteService = Cloud::loadClass('Service_Client_Favorite');
-                            $favoriteService->remove($_G['uid'], $_GET['favorite'], TIMESTAMP);
-                    }
-                    return_status(200,'删除成功');
+            if($_GET['favorite']) {
+                $_GET['favorite'] = explode(',', $_GET['favorite']);
+                $_GET['favorite'] = dintval($_GET['favorite'], is_array($_GET['favorite']));
+                $deletecounter = array();
+                $data = C::t('home_favorite')->fetch_all($_GET['favorite']);
+                foreach($data as $dataone) {
+                        switch($dataone['idtype']) {
+                                case 'fid':
+                                        $deletecounter['fids'][] = $dataone['id'];
+                                        break;
+                                default:
+                                        break;
+                        }
                 }
-                return_status(403);
-            } else {
-                    $favid = intval($_GET['favid']);
-                    $thevalue = C::t('home_favorite')->fetch($favid);
-                    if(empty($thevalue) || $thevalue['uid'] != $_G['uid']) {
-                            return_status(611);
-                    }
-
-                    switch($thevalue['idtype']) {
-                            case 'fid':
-                                    C::t('forum_forum')->update_forum_counter($thevalue['id'], 0, 0, 0, 0, -1);
-                                    break;
-                            default:
-                                    break;
-                    }
-                    C::t('home_favorite')->delete($favid);
-                    if($_G['setting']['cloud_status']) {
-                            $favoriteService = Cloud::loadClass('Service_Client_Favorite');
-                            $favoriteService->remove($_G['uid'], $favid);
-                    }
-                    return_status(200,'删除成功');            
+                if($deletecounter['fids']) {
+                        C::t('forum_forum')->update_forum_counter($deletecounter['fids'], 0, 0, 0, 0, -1);
+                }
+                C::t('home_favorite')->delete($_GET['favorite'], false, $_G['uid']);
+                if($_G['setting']['cloud_status']) {
+                        $favoriteService = Cloud::loadClass('Service_Client_Favorite');
+                        $favoriteService->remove($_G['uid'], $_GET['favorite'], TIMESTAMP);
+                }
+                return_status(200,'删除成功');
             }
+            return_status(403);
         }
 }
 function makeurl($id, $idtype, $spaceuid=0) {
