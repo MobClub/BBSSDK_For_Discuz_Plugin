@@ -45,7 +45,8 @@ switch($_GET['step']){
 		install_action();
 		C::t('common_plugin')->update($_GET['pluginid'], array('available' => '1'));
 		updatecache(array('plugin', 'setting', 'styles'));
-		cpmsg($installlang['ifreg'], "{$request_url}&step=install&modetype=1", 'form', array(), '', TRUE, $delPlugin);
+                dheader('location: '."admin.php?{$request_url}&step=install&modetype=1");
+//		cpmsg($installlang['ifreg'], "{$request_url}&step=install&modetype=1", 'form', array(), '', TRUE, $delPlugin);
 	case 'install':
 		if(extension_loaded('curl')){
 			if($_GET['modetype'] == '1'){
