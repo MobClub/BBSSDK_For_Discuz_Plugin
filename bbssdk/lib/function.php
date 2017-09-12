@@ -91,7 +91,7 @@ function message_filter($text)
 }
 
 
-function push_http_query($url, $data, $type='push' , $limit=0, $timeout=30)
+function push_http_query($url, $data, $type='push' , $limit=0, $timeout=5)
 {
     try{    
         global $_G;
