@@ -71,13 +71,13 @@ class Member extends BaseCore
 					return_status(30105);
 					break;
 				case -3:
-					$lang = lang('template');
+					$lang = diconv(lang('template'),$this->charset);
 					$question = array();
 					for($i=1;$i<=7;$i++)
 					{
 						if(isset($lang['security_question_'.$i])){
 							$question[$i-1]['questionid'] = $i;
-							$question[$i-1]['question'] = $lang['security_question_'.$i];
+							$question[$i-1]['question'] =  diconv($lang['security_question_'.$i],$this->charset,'utf-8');
 						}
 					}
 					return_status(30101,array('data'=>$question));
