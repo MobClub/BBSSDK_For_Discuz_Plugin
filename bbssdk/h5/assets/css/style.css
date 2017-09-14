@@ -209,6 +209,7 @@ button:active,input[type=button]:active {
 	font-size: .75rem;
 	line-height: 1.6;
         margin-top: 12px;
+        word-wrap: break-word;
 }
 .postTitle{
     padding-left: 15px;
