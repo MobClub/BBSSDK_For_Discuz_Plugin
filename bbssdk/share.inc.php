@@ -5,6 +5,7 @@ if(!defined('IN_DISCUZ')) {
 if(!defined('DISABLEDEFENSE')){
         define('DISABLEDEFENSE', 1);
 }
+global $_G;
 
 $tid = intval($_REQUEST['tid']);
 $item = c::t('forum_thread')->fetch_by_tid_displayorder($tid);
