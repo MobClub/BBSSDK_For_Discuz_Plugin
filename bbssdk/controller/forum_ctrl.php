@@ -345,7 +345,7 @@ class Forum extends BaseCore
                                         'recommend_add' => (int) $item['recommend_add'],
                                         'recommend_sub' => (int) $item['recommend_sub'],
                                         'recommends' => (int) $item['recommends'],
-                                        'threadurl'=> get_site_url().'forum.php?mod=viewthread&tid='.(int)$item['tid'],
+                                        'threadurl'=> get_site_url().'plugin.php?id=bbssdk:share&tid='.(int)$item['tid'],
 					'message' => isset($current['mdtype']) && $current['mdtype'] == 1 ? $this->MarkdownToHtml->transform($current['message']) : discuzcode($current['message'], $current['smileyoff'], $current['bbcodeoff'], $current['htmlon']),
 				);
 				$attachment = array();
