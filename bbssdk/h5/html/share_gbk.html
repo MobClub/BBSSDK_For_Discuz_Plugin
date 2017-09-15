@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
-            <meta charset="utf-8">
+        <meta charset="gbk">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<title>ËØ¶ÊÉÖÈ°µ</title>
+		<title>œÍ«È“≥</title>
 		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -13,10 +13,10 @@
 	</head>
 	<body>
     	<div>
-    		<!--ÊñáÁ´† start-->
+    		<!--Œƒ’¬ start-->
     		<div class="article">
     			<div class="article-title"><?php echo $thread['subject']?></div>
-                        <!--‰ΩúËÄÖ start-->
+                        <!--◊˜’ﬂ start-->
                         <div class="author">
                                 <div class="author-left">
                                         <div class="author-portrait"><img src="<?php echo $thread['avatar']?>"/></div>
@@ -30,11 +30,11 @@
                                         <img v-if="article.follow==true" src="./source/plugin/bbssdk/h5/assets/images/follow-yes.png"/>
                                 </div>-->
                         </div>
-                        <!--‰ΩúËÄÖ end-->
+                        <!--◊˜’ﬂ end-->
                         <div class="baseInfo">
-                                <div>ËØÑËÆ∫<span><?php echo $thread['replies']?></span></div>
-                                <div>ÂñúÊ¨¢<span><?php echo $thread['recommend_add']?></span></div>
-                                <div>Êü•Áúã<span><?php echo $thread['views']?></span></div>
+                                <div>∆¿¬€<span><?php echo $thread['replies']?></span></div>
+                                <div>œ≤ª∂<span><?php echo $thread['recommend_add']?></span></div>
+                                <div>≤Èø¥<span><?php echo $thread['views']?></span></div>
                                 <div><!--<img src="data/attachment/common/<?php echo $foruminfo['icon']?>">--><?php echo $foruminfo['name']?></div>
                         </div>
     			<div class="article-text"><?php echo $thread['message']?></div>
@@ -42,14 +42,14 @@
     				<li v-for="atta in article.attachments">
     					<div class="file-img"><img src="./source/plugin/bbssdk/h5/assets/images/fileicon-default.png"/></div>
     					<div class="file-name">{{ atta.fileName }}</div>
-    					<a href="javascript:;" @click="openAttachment(atta)">{{ atta.isImage==1 ? "ÊâìÂºÄÈôÑ‰ª∂" : "‰∏ãËΩΩÈôÑ‰ª∂" }}</a>
+    					<a href="javascript:;" @click="openAttachment(atta)">{{ atta.isImage==1 ? "¥Úø™∏Ωº˛" : "œ¬‘ÿ∏Ωº˛" }}</a>
     				</li>
     			</ul>-->
     		</div>
-    		<!--ÊñáÁ´† end-->
+    		<!--Œƒ’¬ end-->
     		
-    		<!--ËØÑËÆ∫ start-->
-                <div class="postTitle"><img src="./source/plugin/bbssdk/h5/assets/images/postTitle.png"/>ËØÑËÆ∫</div>
+    		<!--∆¿¬€ start-->
+                <div class="postTitle"><img src="./source/plugin/bbssdk/h5/assets/images/postTitle.png"/>∆¿¬€</div>
                 <?php if($posts):?>
                 <ul class="comment" id="comm">
                     <?php foreach($posts as $p):?>
@@ -59,16 +59,16 @@
                                 <div class="name"><?php echo $p['author']?></div>
                                 <div><?php echo formatDate($p['dateline'])?></div>
                                 <!--<div class="r" @click="reply(list)"><img src="./source/plugin/bbssdk/h5/assets/images/post.png"/></div>-->
-                                <div class="r"><?php echo $p['position']?>Ê•º</div>
+                                <div class="r"><?php echo $p['position']?>¬•</div>
                                 <?php if($p['authorid']==$thread['authorid']):?>
-                                <div class="r"><div class="comment-author">Ê•º‰∏ª</div></div>
+                                <div class="r"><div class="comment-author">¬•÷˜</div></div>
                                 <?php endif;?>
                             </div>
                             <div class="c"><?php echo $p['message']?></div>
                             <?php if($p['precomment']):?>
                             <div class="comment-reply-box">
                                 <dl class="comment-reply">
-                                        <dd>ÂºïÁî®Ôºö<?php echo $p['precomment']['author']?>‰∫é<?php echo formatDate($p['precomment']['dateline'])?>ÂèëË°®ÁöÑÔºö<?php echo $p['precomment']['message']?></dd>
+                                        <dd>“˝”√£∫<?php echo $p['precomment']['author']?>”⁄<?php echo formatDate($p['precomment']['dateline'])?>∑¢±Ìµƒ£∫<?php echo $p['precomment']['message']?></dd>
                                 </dl>
                             </div>
                             <?php endif;?>
@@ -76,7 +76,7 @@
                     <?php endforeach;?>
     		</ul>
                 <?php else:?>
-                <div class="bottom-loading"><span>ÊöÇÊó†ËØÑËÆ∫</span></div>
+                <div class="bottom-loading"><span>‘›Œﬁ∆¿¬€</span></div>
                 <?php endif;?>
     		
     	</div>
