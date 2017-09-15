@@ -14,7 +14,12 @@ $current = c::t('forum_post')->fetch_threadpost_by_tid_invisible($item['tid']);
 $thread = relation_item($item, $current);
 $posts  = get_list($item['fid'], $tid);
 $foruminfo = C::t('forum_forum')->fetch_info_by_fid($item['fid']);
-require_once 'h5/html/share.html';
+
+if($_G['charset']=='gbk'){
+    require_once 'h5/html/share_gbk.html';
+}else{
+    require_once 'h5/html/share.html'; 
+}
 
 function relation_item($item, $current){
     global $_G;
@@ -219,6 +224,7 @@ function filter_detail($text,$tid)
        return array($newMessage,$precomment);
 }
 function formatDate($timestamp){
+    global $_G;
     $now  = time();
     $diff = $now-$timestamp;
     if($diff<60){
@@ -230,5 +236,5 @@ function formatDate($timestamp){
     }else{
         $r = date('m-d H:i',$timestamp);
     }
-    return $r;
+    return $_G['charset']=='gbk'?diconv($r,'utf-8',$_G['charset']):$r;
 }
