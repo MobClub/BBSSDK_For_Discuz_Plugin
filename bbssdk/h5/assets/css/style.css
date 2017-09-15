@@ -297,8 +297,10 @@ button:active,input[type=button]:active {
 .comment li .c{
     font-size: 14px;
     color: #4E4F57;
+    overflow:hidden;
 }
 .comment li .c img{
+    float: left;
     max-width: 100%;
     display: block;
     margin: 0 auto;
