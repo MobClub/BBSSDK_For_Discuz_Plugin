@@ -28,6 +28,7 @@ function relation_item($item, $current){
         require_once libfile('function/discuzcode');
         $actItem = array();
         if(is_array($item)){
+                $md = new Markdown();
                 $actItem = array(
                         'tid' => (int)$item['tid'],
                         'fid' => (int)$item['fid'],
@@ -50,7 +51,7 @@ function relation_item($item, $current){
                         'recommend_sub' => (int) $item['recommend_sub'],
                         'recommends' => (int) $item['recommends'],
                         'threadurl'=> get_site_url().'forum.php?mod=viewthread&tid='.(int)$item['tid'],
-                        'message' => isset($current['mdtype']) && $current['mdtype'] == 1 ? (new Markdown())->transform($current['message']) : discuzcode($current['message'], $current['smileyoff'], $current['bbcodeoff'], $current['htmlon']),
+                        'message' => isset($current['mdtype']) && $current['mdtype'] == 1 ? $md->transform($current['message']) : discuzcode($current['message'], $current['smileyoff'], $current['bbcodeoff'], $current['htmlon']),
                 );
                 $attachment = array();
 
