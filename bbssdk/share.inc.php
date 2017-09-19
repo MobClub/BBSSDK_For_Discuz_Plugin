@@ -5,9 +5,14 @@ if(!defined('IN_DISCUZ')) {
 if(!defined('DISABLEDEFENSE')){
         define('DISABLEDEFENSE', 1);
 }
+require_once 'lib/function.php';
 global $_G;
 
 $tid = intval($_REQUEST['tid']);
+
+if(strpos($_SERVER['HTTP_USER_AGENT'], 'obile') === FALSE){
+    dheader('location: '.get_site_url().'forum.php?mod=viewthread&tid='.$tid);
+}
 $item = c::t('forum_thread')->fetch_by_tid_displayorder($tid);
 $current = c::t('forum_post')->fetch_threadpost_by_tid_invisible($item['tid']);
 
@@ -24,7 +29,6 @@ if($_G['charset']=='gbk'){
 function relation_item($item, $current){
     global $_G;
     try{
-        require_once 'lib/function.php';
         require_once libfile('function/discuzcode');
         $actItem = array();
         if(is_array($item)){
