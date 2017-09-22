@@ -5,7 +5,7 @@ if(!defined('IN_DISCUZ') || !defined('IN_ADMINCP')) {
 @include_once libfile('cache/setting', 'function');
 build_cache_setting();
 upgrade();
-
+loadcache('plugin');
 global $_G;
 
 $appkey = $_G['cache']['plugin']['bbssdk']['appkey'];
