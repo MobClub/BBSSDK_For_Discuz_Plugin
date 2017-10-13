@@ -73,17 +73,14 @@ class Forum extends BaseCore
 
 	public function get_item()
 	{
-		$fid = intval($_REQUEST['fid']);
 		$tid = intval($_REQUEST['tid']);
-		if(!$fid || !$tid) return_status(403);
+		if(!$tid) return_status(403);
 
 		$item = c::t('forum_thread')->fetch_by_tid_displayorder($tid);
 		
 		$current = c::t('forum_post')->fetch_threadpost_by_tid_invisible($item['tid']);
 
 		$data = $this->relation_item($item,$current);
-
-		if($data['fid'] != $fid || $data['tid'] != $tid) $data = null;
 
 		$this->success_result($data);
 	}
@@ -198,8 +195,13 @@ class Forum extends BaseCore
 
 		$this->success_result($data);
 	}
-
-	public function put_item()
+        public function post_edit(){
+            $this->put_item();
+        }
+        public function post_delete(){
+            $this->delete_item();
+        }
+        public function put_item()
 	{
 		global $_G;
 		$fid = intval($this->fid);
@@ -339,6 +341,11 @@ class Forum extends BaseCore
 					'highlight' => (int) $item['highlight'],
 					'lastpost' => (int) $item['lastpost'],
 					'lastposter' => $item['lastposter'],
+                                        'favtimes' => (int) $item['favtimes'],
+                                        'recommend_add' => (int) $item['recommend_add'],
+                                        'recommend_sub' => (int) $item['recommend_sub'],
+                                        'recommends' => (int) $item['recommends'],
+                                        'threadurl'=> get_site_url().'plugin.php?id=bbssdk:share&tid='.(int)$item['tid'],
 					'message' => isset($current['mdtype']) && $current['mdtype'] == 1 ? $this->MarkdownToHtml->transform($current['message']) : discuzcode($current['message'], $current['smileyoff'], $current['bbcodeoff'], $current['htmlon']),
 				);
 				$attachment = array();

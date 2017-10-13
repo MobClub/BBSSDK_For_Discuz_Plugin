@@ -29,6 +29,13 @@ $GLOBALS['BBSSDK_ERROR'] = array(
     609 => '对方不允许您关注TA',
     610 => '您已经收听了TA',
     611 => '指定的收藏不存在',
+<<<<<<< HEAD
+=======
+    612 => '主题不存在',
+    613 => '不能评价自己的帖子',
+    614 => '已评价过本主题',
+    615 => '今日评价机会已用完',
+>>>>>>> version2.0
 );
 
 function removeTags($cotnent)
@@ -87,7 +94,7 @@ function message_filter($text)
 }
 
 
-function push_http_query($url, $data, $type='push' , $limit=0, $timeout=30)
+function push_http_query($url, $data, $type='push' , $limit=0, $timeout=5)
 {
     try{    
         global $_G;
@@ -165,6 +172,14 @@ function check_url($url)
     );
 }
 
+function get_site_url(){
+    global $_G;
+    $siteurl = !empty($_G['setting']['siteurl'])?$_G['setting']['siteurl']:'http://'.$_SERVER['HTTP_HOST'];
+    return rtrim($siteurl,'/').'/';
+}
+function prepend_site_url($con){
+    return preg_replace("/href=[\'\"]([^\'^\"]+)[\'\"]/is", "href='".get_site_url()."$1'",$con);
+}
 function write_log($message,$type='error') 
 {
     $logTypes = BBSSDK_DEBUG ? array('error','warning','debug') : array('error');

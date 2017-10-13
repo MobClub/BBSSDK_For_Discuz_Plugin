@@ -12,6 +12,13 @@ try{
 		}else{
 			die('File Path Error!');
 		}
+                if(isset($_REQUEST['share'])){//分享
+                    require_once 'lib/function.php';
+                    $tid = intval($_REQUEST['tid']);
+                    $threadUrl = get_site_url().'plugin.php?id=bbssdk:share&tid='.$tid;
+                    header('Location: '.$threadUrl);
+                    exit;
+                }
 		if(isset($_REQUEST['comment_size']) && isset($_REQUEST['thread_size']))
 		{
 			$final = totalJson();

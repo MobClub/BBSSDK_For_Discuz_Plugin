@@ -192,8 +192,14 @@ class Comment extends BaseCore
 			$this->success_result($list);
 		}	
 
-	} 
-	public function put_item()
+	}
+        public function post_edit(){
+            $this->put_item();
+        }
+        public function post_delete(){
+            $this->delete_item();
+        }
+        public function put_item()
 	{
 		require_once libfile('function/forum');
 		global $_G;
