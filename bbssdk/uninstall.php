@@ -19,6 +19,12 @@ DB::query($sql);
 $sql = "drop table  if exists `" . DB::table('bbssdk_usergroup_sync') . "`";
 DB::query($sql);
 
+$sql = "drop table  if exists `" . DB::table('bbssdk_favorite_sync') . "`";
+DB::query($sql);
+
+$sql = "drop table  if exists `" . DB::table('bbssdk_notification_sync') . "`";
+DB::query($sql);
+
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_menu;";
 DB::query($sql);
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_menu;";
@@ -61,6 +67,23 @@ $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_memberprofile;";
 DB::query($sql);
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_memberprofile;";
 DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_memberfieldforum;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_memberfieldforum;";
+DB::query($sql);
+
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_homefavorite;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_homefavorite;";
+DB::query($sql);
+
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_homenotification;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_homenotification;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_homenotification;";
+DB::query($sql);
+
 
 $sql = "delete from ". DB::table('common_cron') ." where filename like 'bbssdk%'";
 DB::query($sql);
