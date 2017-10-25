@@ -34,7 +34,8 @@ body {
 	color: #333;
 	font-size: 16px;
 	line-height: 1.5;
-	background-color: #eaedf2
+	background-color: #eaedf2;
+    word-break: break-word;
 }
 
 article,aside,details,figcaption,figure,footer,header,hgroup,nav,section,summary {
@@ -60,10 +61,16 @@ ol,ul {
 }
 
 table {
-	border-collapse: collapse;
-	border-spacing: 0
+        border-spacing: 0;
+        border: 1px solid #E3EDF5;
+        empty-cells: show;
+        border-collapse: collapse;
 }
-
+table td{
+    padding: 4px;
+    border: 1px solid #E3EDF5;
+    overflow: hidden;
+} 
 button,input,select,textarea {
 	border: 0;
 	background: 0 0
@@ -155,7 +162,8 @@ button:active,input[type=button]:active {
 }
 
 .author-portrait img {
-	width: 100%;
+        width: 100%;
+	height: 100%;
 	border-radius: 50%
 }
 
@@ -230,7 +238,6 @@ button:active,input[type=button]:active {
 }
 
 .article-text img {
-	display: block;
 	margin: auto;
 	margin-top: .4rem;
 	margin-bottom: .4rem;
@@ -291,6 +298,7 @@ button:active,input[type=button]:active {
     margin-right: 0;
 }
 .comment li .t img {
+    height: 36px;
     width: 36px;
     border-radius: 50%
 }
@@ -300,9 +308,7 @@ button:active,input[type=button]:active {
     overflow:hidden;
 }
 .comment li .c img{
-    float: left;
     max-width: 100%;
-    display: block;
     margin: 0 auto;
     margin-bottom: .15rem;
     margin-top: .15rem

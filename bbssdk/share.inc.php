@@ -20,6 +20,10 @@ $thread = relation_item($item, $current);
 $posts  = get_list($item['fid'], $tid);
 $foruminfo = C::t('forum_forum')->fetch_info_by_fid($item['fid']);
 
+loadcache('plugin');
+global $_G;
+$appkey = $_G['cache']['plugin']['bbssdk']['appkey'];
+
 if($_G['charset']=='gbk'){
     require_once 'h5/html/share_gbk.html';
 }else{

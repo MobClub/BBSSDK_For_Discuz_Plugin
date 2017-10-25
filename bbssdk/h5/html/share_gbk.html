@@ -9,7 +9,17 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 		<meta name="format-detection" content="telephone=no">
 		<link rel="stylesheet" type="text/css" href="./source/plugin/bbssdk/h5/assets/css/style.css">
-
+        <script type="text/javascript" src="//f.moblink.mob.com/v2_0_1/moblink.js?appkey=<?php echo $appkey?>"></script>
+        <script type="text/javascript">
+            MobLink({
+                el: '',
+                path: '/thread/detail',
+                params: {
+                    'fid': '<?php echo $thread["fid"]?>',
+                    'tid': '<?php echo $thread["tid"]?>',
+                }
+            });
+        </script>
 	</head>
 	<body>
     	<div>
@@ -32,7 +42,7 @@
                         </div>
                         <!--作者 end-->
                         <div class="baseInfo">
-                                <div>评论<span><?php echo $thread['replies']?></span></div>
+                                <div onclick="location.href = location.href.replace('#postTitle', '')+'#postTitle'">评论<span><?php echo $thread['replies']?></span></div>
                                 <div>喜欢<span><?php echo $thread['recommend_add']?></span></div>
                                 <div>查看<span><?php echo $thread['views']?></span></div>
                                 <div><!--<img src="data/attachment/common/<?php echo $foruminfo['icon']?>">--><?php echo $foruminfo['name']?></div>
@@ -49,7 +59,7 @@
     		<!--文章 end-->
     		
     		<!--评论 start-->
-                <div class="postTitle"><img src="./source/plugin/bbssdk/h5/assets/images/postTitle.png"/>评论</div>
+                <div class="postTitle" id="postTitle"><img src="./source/plugin/bbssdk/h5/assets/images/postTitle.png"/>评论</div>
                 <?php if($posts):?>
                 <ul class="comment" id="comm">
                     <?php foreach($posts as $p):?>
