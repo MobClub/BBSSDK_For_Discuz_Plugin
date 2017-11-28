@@ -6,6 +6,7 @@ require_once libfile('function/member');
 require_once libfile('class/member');
 require_once libfile('function/discuzcode');
 require_once libfile('function/profile');
+require_once 'table/table_bbssdk_oauth.php';
 
 class Member extends BaseCore
 {
@@ -126,8 +127,49 @@ class Member extends BaseCore
 			return_status(30106);
 		}
 	}
+        public function get_getuserbyname(){
+            $username = urldecode($this->username);
+            $res = C::t('common_member')->fetch_all_by_username($username);
+            $userinfo = $res&&isset($res[$username])?$res[$username]:array();
+            
+            $final = array();
+            if($userinfo){
+                $result['member'] = getuserbyuid($userinfo['uid']);
+                $userinfo = array_merge($userinfo,$result['member']);
+                $final = $this->relation_item($userinfo);
+            }
+            
+            $this->success_result($final);
+        }
+        public function get_oauthstatus(){
+            $wxOpenid  = urldecode($this->wxOpenid);
+            $wxUnionid = urldecode($this->wxUnionid);
+            $qqOpenid  = urldecode($this->qqOpenid);
+            $qqUnionid = urldecode($this->qqUnionid);
+            
+            $uid = c::t('bbssdk_oauth')->getOauthUser($wxOpenid,$wxUnionid,$qqOpenid,$qqUnionid);
+            $final = array();
+            if($uid){
+                $result['member'] = getuserbyuid($uid);
+                $userinfo =  C::t('common_member')->fetch_all_stat_memberlist($result['member']['username']);
+                $userinfo = array_merge($userinfo[$uid],$result['member']);
+                $final = $this->relation_item($userinfo);
+            }
+            $this->success_result($final);
+        }
+        public function post_recordoauth(){
+            $uid = intval($this->uid);
+            if(!$uid) return_status(601);
+            
+            $wxOpenid  = urldecode($this->wxOpenid);
+            $wxUnionid = urldecode($this->wxUnionid);
+            $qqOpenid  = urldecode($this->qqOpenid);
+            $qqUnionid = urldecode($this->qqUnionid);
+            $res = c::t('bbssdk_oauth')->recordOauth($uid,$wxOpenid,$wxUnionid,$qqOpenid,$qqUnionid);
+            return_status($res['code'],$res['msg']);
+        }
 
-	public function post_register()
+        public function post_register()
 	{
 		global $_G;
 		$username = urldecode($this->username);
@@ -862,6 +904,11 @@ class Member extends BaseCore
 	{
                 space_merge($item, 'field_forum');
                 space_merge($item, 'profile');
+                try{
+                    $oauth = c::t('bbssdk_oauth')->getOauthByUid($item['uid']);
+                } catch (Exception $e){
+                    $oauth = array();
+                }
 		return array(
 			'uid' => (int)$item['uid'],
 			'gender' => (int) $item['gender'],
@@ -897,6 +944,10 @@ class Member extends BaseCore
                         'residedist' => $item['residedist'],
                         'residecommunity' => $item['residecommunity'],
                         'residesuite' => $item['residesuite'],
+                        'wxOpenid'  => isset($oauth['wxOpenid'])?$oauth['wxOpenid']:'',
+                        'wxUnionid'  =>isset($oauth['wxUnionid'])?$oauth['wxUnionid']:'',
+                        'qqOpenid'  =>isset($oauth['qqOpenid'])?$oauth['qqOpenid']:'',
+                        'qqUnionid'  =>isset($oauth['qqUnionid'])?$oauth['qqUnionid']:'',
 		);
 	}
 }

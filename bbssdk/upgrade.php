@@ -222,4 +222,21 @@ function upgrade(){
     END;";
     DB::query($sql);
     /* 1.5 触发器 fix结束 */
+    
+    /* oauth表开始 */
+    $sql = "CREATE TABLE IF NOT EXISTS `".DB::table('bbssdk_oauth')."` (
+	  `uid` INT NULL DEFAULT NULL , 
+          `wxOpenid` INT NULL DEFAULT NULL , 
+          `wxUnionid` INT NULL DEFAULT NULL , 
+          `qqOpenid` INT NULL DEFAULT NULL , 
+          `qqUnionid` INT NULL DEFAULT NULL , 
+          UNIQUE `uid` (`uid`), 
+          UNIQUE `wxOpenid` (`wxOpenid`), 
+          UNIQUE `wxUnionid` (`wxUnionid`), 
+          UNIQUE `qqOpenid` (`qqOpenid`), 
+          UNIQUE `qqUnionid` (`qqUnionid`)
+          ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
+
+    DB::query($sql);
+    /* oauth表结束 */
 }
