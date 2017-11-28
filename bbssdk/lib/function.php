@@ -5,6 +5,7 @@ require_once 'markdown.php';
 require_once 'bbsjson.php';
 
 $GLOBALS['BBSSDK_ERROR'] = array(
+    200 => 'success',
     109 => '请求非法',
     110 => '后台未配置',
     111 => '验证错误',
@@ -29,13 +30,12 @@ $GLOBALS['BBSSDK_ERROR'] = array(
     609 => '对方不允许您关注TA',
     610 => '您已经收听了TA',
     611 => '指定的收藏不存在',
-<<<<<<< HEAD
-=======
     612 => '主题不存在',
     613 => '不能评价自己的帖子',
     614 => '已评价过本主题',
     615 => '今日评价机会已用完',
->>>>>>> version2.0
+    701 => '微信oAuth异常',
+    702 => 'QQoAuth异常'
 );
 
 function removeTags($cotnent)
