@@ -25,6 +25,9 @@ DB::query($sql);
 $sql = "drop table  if exists `" . DB::table('bbssdk_notification_sync') . "`";
 DB::query($sql);
 
+$sql = "drop table  if exists `" . DB::table('bbssdk_oauth') . "`";
+DB::query($sql);
+
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_menu;";
 DB::query($sql);
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_menu;";
