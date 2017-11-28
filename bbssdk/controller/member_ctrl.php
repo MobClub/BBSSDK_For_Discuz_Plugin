@@ -530,8 +530,6 @@ class Member extends BaseCore
 			$this->success_result($final,join(',',$success_msg));
 		}
 	}
-<<<<<<< HEAD
-=======
         //version2.0
         public function post_profile()
 	{
@@ -635,7 +633,6 @@ class Member extends BaseCore
                     $this->success_result($final,join(',',$success_msg));
             }
 	}
->>>>>>> version2.0
         public function post_support(){
             global $_G;
             $_G['uid'] = intval($this->uid);
@@ -687,8 +684,6 @@ class Member extends BaseCore
 
             return_status(200,'操作成功');
         }
-<<<<<<< HEAD
-=======
         public function post_recommend(){
             require_once libfile('function/forum');
             global $_G;
@@ -739,7 +734,6 @@ class Member extends BaseCore
             $data['recommends'] = intval($_GET['do'] == 'add'?$thread['recommends']+1:$thread['recommends']-1);
             $this->success_result($data);
         }
->>>>>>> version2.0
         public function post_follow(){
             global $_G;
             $_G['uid']  = intval($this->uid);
@@ -1111,8 +1105,4 @@ function guide_procthread($thread) {
 	}
 	$thread['rushreply'] = getstatus($thread['status'], 3);
 	return $thread;
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> version2.0

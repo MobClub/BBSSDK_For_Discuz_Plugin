@@ -1,15 +1,12 @@
 <?php
 if(!defined('DISABLEDEFENSE'))  exit('Access Denied!');
 require_once 'table/table_bbssdk_favorite_sync.php';
-<<<<<<< HEAD
-=======
 require_once 'table/table_bbssdk_menu_sync.php';
 require_once 'table/table_bbssdk_member_sync.php';
 require_once 'table/table_bbssdk_forum_sync.php';
 require_once 'table/table_bbssdk_comment_sync.php';
 require_once 'table/table_bbssdk_notification_sync.php';
 
->>>>>>> version2.0
 class Ping extends BaseCore
 {
 	function __construct()
@@ -19,18 +16,6 @@ class Ping extends BaseCore
 	public function get_new()
 	{
             $t = intval($_GET['t']);
-<<<<<<< HEAD
-            $favorites = [];
-            $favs = c::t('bbssdk_favorite_sync')->unsync_list_by_time($t);
-            if($favs){
-                foreach ($favs as $fav){
-                    $fav['favid']*=$fav['flag']==3?-1:1;
-                    array_push($favorites, $fav['favid']);
-                }
-            }
-            $data['time'] = $t;
-            $data['favorites'] = $favorites;
-=======
             //收藏
             $favorites = $syncids = array();
             $favs = c::t('bbssdk_favorite_sync')->unsync_list_by_time($t,100);
@@ -125,7 +110,6 @@ class Ping extends BaseCore
             $data['posts']      = $posts;
             $data['notices']    = $notices;
             
->>>>>>> version2.0
             $this->success_result($data);
 	}
 }
