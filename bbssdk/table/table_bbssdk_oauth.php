@@ -8,9 +8,14 @@ class table_bbssdk_oauth extends bbssdk_common_sync
 	public function __construct()
 	{
 		$this->_table = "bbssdk_oauth";
+                $this->_pk = "id";
 		parent::__construct();
 	}
         public function getOauthUser($wxOpenid,$wxUnionid,$qqOpenid,$qqUnionid){
+            $wxOpenid  = $wxOpenid?$wxOpenid:404;
+            $wxUnionid = $wxUnionid?$wxUnionid:404;
+            $qqOpenid  = $qqOpenid?$qqOpenid:404;
+            $qqUnionid = $qqUnionid?$qqUnionid:404;
             return DB::result_first("SELECT uid FROM %t WHERE wxOpenid=%s OR wxUnionid=%s OR qqOpenid=%s OR qqUnionid=%s", array($this->_table, $wxOpenid,$wxUnionid,$qqOpenid,$qqUnionid));
         }
         public function getOauthByUid($uid){
@@ -18,6 +23,9 @@ class table_bbssdk_oauth extends bbssdk_common_sync
         }
 
         public function recordOauth($uid,$wxOpenid,$wxUnionid,$qqOpenid,$qqUnionid) {
+            if(!$wxOpenid&&!$wxUnionid&&!$qqOpenid&&!$qqUnionid){
+                return array('code'=>403,'msg'=>'oAuth信息不能为空');
+            }
             $res = $this->getOauthByUid($uid);
             try{
                 if($res){
@@ -25,25 +33,15 @@ class table_bbssdk_oauth extends bbssdk_common_sync
                         if($res['wxOpenid']||$res['wxUnionid']){
                             return array('code'=>701,'msg'=>'');
                         }
-                        $wxOpenid  = $wxOpenid?$wxOpenid:"NULL";
-                        $wxUnionid = $wxUnionid?$wxUnionid:"NULL";
-                        DB::query("update ".DB::table('bbssdk_oauth')." set wxOpenid=$wxOpenid where uid=$uid");
+                        $this->update($res['id'], array('wxOpenid'=>$wxOpenid,'wxUnionid'=>$wxUnionid));
                     }else if($qqOpenid||$qqUnionid){
                         if($res['qqOpenid']||$res['qqUnionid']){
                             return array('code'=>702,'msg'=>'');
                         }
-                        $qqOpenid  = $qqOpenid?$qqOpenid:"NULL";
-                        $qqUnionid = $qqUnionid?$qqUnionid:"NULL";
-                        DB::query("update ".DB::table('bbssdk_oauth')." set qqOpenid=$qqOpenid ,qqUnionid = $qqUnionid where uid=$uid");
-                    }else{
-                        return array('code'=>403,'msg'=>'oAuth信息不能为空');
+                        $this->update($res['id'], array('qqOpenid'=>$qqOpenid,'qqUnionid'=>$qqUnionid));
                     }
                 }else{
-                    $wxOpenid  = $wxOpenid?$wxOpenid:"NULL";
-                    $wxUnionid = $wxUnionid?$wxUnionid:"NULL";
-                    $qqOpenid  = $qqOpenid?$qqOpenid:"NULL";
-                    $qqUnionid = $qqUnionid?$qqUnionid:"NULL";
-                    DB::query("insert INTO ".DB::table('bbssdk_oauth')." (`uid`,`wxOpenid`,`wxUnionid`,`qqOpenid`,`qqUnionid`) VALUES ($uid,$wxOpenid,$wxUnionid,$qqOpenid,$qqUnionid)");
+                    $this->insert(array('uid'=>$uid,'wxOpenid'=>$wxOpenid,'wxUnionid'=>$wxUnionid,'qqOpenid'=>$qqOpenid,'qqUnionid'=>$qqUnionid));
                 }
             } catch (Exception $e){
                 return array('code'=>$e->getCode(),'msg'=>$e->getMessage());

@@ -14,8 +14,7 @@ showsubmenusteps($installlang['title'], array(
 
 $pluginName = 'bbssdk';
 $final = false;
-$delPlugin = $_G['siteurl'].'admin.php?action=plugins&operation=delete&pluginid='.$_GET['pluginid'];
-
+$delPlugin = rtrim($_G['siteurl'],'/').$_SERVER['PHP_SELF'].'?action=plugins&operation=delete&pluginid='.$_GET['pluginid'];
 switch($_GET['step']){
 	default:
 		require_once 'check.php';
@@ -45,7 +44,7 @@ switch($_GET['step']){
 		install_action();
 		C::t('common_plugin')->update($_GET['pluginid'], array('available' => '1'));
 		updatecache(array('plugin', 'setting', 'styles'));
-                dheader('location: '."admin.php?{$request_url}&step=install&modetype=1");
+                dheader('location: '.$_SERVER['PHP_SELF']."?{$request_url}&step=install&modetype=1");
 //		cpmsg($installlang['ifreg'], "{$request_url}&step=install&modetype=1", 'form', array(), '', TRUE, $delPlugin);
 	case 'install':
 		if(extension_loaded('curl')){
@@ -178,16 +177,18 @@ function install_action()
 	DB::query($sql);
         
         $sql = "CREATE TABLE IF NOT EXISTS `".DB::table('bbssdk_oauth')."` (
+          `id` INT NOT NULL AUTO_INCREMENT , 
 	  `uid` INT NULL DEFAULT NULL , 
-          `wxOpenid` INT NULL DEFAULT NULL , 
-          `wxUnionid` INT NULL DEFAULT NULL , 
-          `qqOpenid` INT NULL DEFAULT NULL , 
-          `qqUnionid` INT NULL DEFAULT NULL , 
+          `wxOpenid` varchar(100) DEFAULT NULL,
+          `wxUnionid` varchar(100) DEFAULT NULL,
+          `qqOpenid` varchar(100) DEFAULT NULL,
+          `qqUnionid` varchar(100) DEFAULT NULL,
+          PRIMARY KEY (`id`),
           UNIQUE `uid` (`uid`), 
-          UNIQUE `wxOpenid` (`wxOpenid`), 
-          UNIQUE `wxUnionid` (`wxUnionid`), 
-          UNIQUE `qqOpenid` (`qqOpenid`), 
-          UNIQUE `qqUnionid` (`qqUnionid`)
+          index `wxOpenid` (`wxOpenid`), 
+          index `wxUnionid` (`wxUnionid`), 
+          index `qqOpenid` (`qqOpenid`), 
+          index `qqUnionid` (`qqUnionid`)
           ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
 
 	DB::query($sql);

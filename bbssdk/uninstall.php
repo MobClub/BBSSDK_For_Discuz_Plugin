@@ -91,6 +91,8 @@ DB::query($sql);
 $sql = "delete from ". DB::table('common_cron') ." where filename like 'bbssdk%'";
 DB::query($sql);
 
+C::t('common_setting')->update_batch(array('bbssdk_setting'=>array()));
+
 $destFile = dirname(dirname(dirname(dirname(__FILE__)))) . '/api/mobile/remote.php';
 if(file_exists($destFile)){
 	unlink($destFile);
