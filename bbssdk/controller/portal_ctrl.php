@@ -7,11 +7,6 @@ class Portal extends BaseCore
 	{
             parent::__construct();
 	}
-        function get_status(){
-            $setting = C::t('common_setting')->fetch_all(null);
-            $data['portalstatus'] = $setting['portalstatus'];
-            $this->success_result($data);
-        }
         function get_commentslist(){
             $page    = intval($_REQUEST['page']);
             $perpage = intval($_REQUEST['pagesize']);

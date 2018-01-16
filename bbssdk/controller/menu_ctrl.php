@@ -26,7 +26,8 @@ class Menu extends BaseCore
 			'need_avatar'=>$actset['need_avatar'],
 			'strongpw'=>is_array($actset['strongpw']) ? $actset['strongpw'] : ( $actset['strongpw'] > 0 ? array($actset['strongpw']) : array() ),
 			'regverify'=>$actset['regverify'],
-			'charset'=>$_G['charset']
+			'charset'=>$_G['charset'],
+                        'portalstatus'=>$actset['portalstatus']
 		);
 		$this->success_result($setting);
 	}
