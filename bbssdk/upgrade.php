@@ -30,7 +30,7 @@ if(!$appInfo['plugin_info']['bbssdk']['enabled']){
         cpmsg($installlang['discuzurl_error'], "", 'error');
 }
 
-$mob_request_url = "http://www.mob.com/api/dz/getUrl?appkey=$appkey&url=".urlencode($mob_setting_url);
+$mob_request_url = "http://admin.mob.com/api/bbs/info?appkey=$appkey&url=".urlencode($mob_setting_url);
 
 $result = json_decode(utf8_encode(file_get_contents($mob_request_url)),true);
 
