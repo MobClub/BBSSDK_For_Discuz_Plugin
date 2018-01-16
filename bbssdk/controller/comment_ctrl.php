@@ -87,7 +87,13 @@ class Comment extends BaseCore
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($message)){
 			return_status(403);
 		}
-
+                if(!preg_match('%utf%is', $this->charset)){
+                        if(function_exists('iconv')){
+                                $message = iconv('UTF-8', $this->charset . '//ignore', $message);
+                        }else{
+                                $message = mb_convert_encoding($message, $this->charset, 'UTF-8');
+                        }
+                }
 		$member = getuserbyuid($uid, 1);
 		C::app()->var['member'] = $member;
 		$_G['groupid'] = $groupid = $member['groupid'];
@@ -213,7 +219,13 @@ class Comment extends BaseCore
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($message)){
 			return_status(403);
 		}
-
+                if(!preg_match('%utf%is', $this->charset)){
+			if(function_exists('iconv')){
+				$message = iconv('UTF-8', $this->charset . '//ignore', $message);
+			}else{
+				$message = mb_convert_encoding($message, $this->charset, 'UTF-8');
+			}
+		}
 		$_G['uid'] = $uid;
 
 		$member = getuserbyuid($uid, 1);

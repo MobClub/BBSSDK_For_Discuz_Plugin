@@ -114,7 +114,15 @@ class Forum extends BaseCore
 		if(!$fid || !$uid || empty($clientip) || empty($subject) || empty($message)){
 			return_status(403);
 		}
-
+                if(!preg_match('%utf%is', $this->charset)){
+			if(function_exists('iconv')){
+				$subject = iconv('UTF-8', $this->charset . '//ignore', $subject);
+				$message = iconv('UTF-8', $this->charset . '//ignore', $message);
+			}else{
+				$subject = mb_convert_encoding($subject, $this->charset, 'UTF-8');
+				$message = mb_convert_encoding($message, $this->charset, 'UTF-8');
+			}
+		}
 		$_G['uid'] = $uid;
 
 		$member = getuserbyuid($uid, 1);
@@ -214,7 +222,15 @@ class Forum extends BaseCore
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($subject) || empty($message)){
 			return_status(403);
 		}
-
+                if(!preg_match('%utf%is', $this->charset)){
+			if(function_exists('iconv')){
+				$subject = iconv('UTF-8', $this->charset . '//ignore', $subject);
+				$message = iconv('UTF-8', $this->charset . '//ignore', $message);
+			}else{
+				$subject = mb_convert_encoding($subject, $this->charset, 'UTF-8');
+				$message = mb_convert_encoding($message, $this->charset, 'UTF-8');
+			}
+		}
 		$_G['uid'] = $uid;
 
 		$member = getuserbyuid($uid, 1);

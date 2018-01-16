@@ -233,6 +233,9 @@ class Member extends BaseCore
 				return_status(302016,'系统暂时不允许注册');
 			}
 		}
+                if(preg_match("/^mob_\w+@null.com$/", $email)) {
+                    $ctlObj->setting['regverify'] = 0;
+                }
 		if($ctlObj->setting['regverify']) {
 			if($ctlObj->setting['areaverifywhite']) {
 				$location = $whitearea = '';

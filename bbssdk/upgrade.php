@@ -19,7 +19,7 @@ if(!$appkey || !$appsecret){
     $dir = substr($plugin['directory'], 0, -1);
     $modules = dunserialize($plugin['modules']);
     $installtype = $modules['extra']['installtype'] ? $modules['extra']['installtype'] : '';
-    dheader('location: '.rtrim($_G['siteurl'],'/').$_SERVER['PHP_SELF']."?action=plugins&operation=plugininstall&dir=".$dir."&installtype=".$installtype."&pluginid=".$plugin['pluginid']."&step=install&modetype=1");
+    dheader('location: '.$_SERVER['PHP_SELF']."?action=plugins&operation=plugininstall&dir=".$dir."&installtype=".$installtype."&pluginid=".$plugin['pluginid']."&step=install&modetype=1");
 }
 
 $mob_setting_url = trim($_G['setting']['discuzurl'],'/').'/api/mobile/remote.php';
@@ -241,4 +241,205 @@ function upgrade(){
 
     DB::query($sql);
     /* oauth表结束 */
+    
+    /* 门户文章模块开始 */
+        $sql = "CREATE TABLE IF NOT EXISTS `".DB::table('bbssdk_portal_article_sync')."` (
+	  `syncid` int(11) NOT NULL AUTO_INCREMENT,
+	  `aid` int(11) DEFAULT NULL,
+	  `creattime` int(11) DEFAULT NULL,
+	  `modifytime` int(11) DEFAULT '0',
+	  `synctime` int(11) DEFAULT '0',
+	  `flag` tinyint(4) DEFAULT '0',
+	  PRIMARY KEY (`syncid`),
+	  UNIQUE KEY `aid` (`aid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+        DB::query($sql);
+        
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalarticletitle;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalarticletitle;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticletitle;";
+	DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterinsert_on_portalarticletitle AFTER INSERT ON `".DB::table('portal_article_title')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        set @aid = new.aid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
+        if @syncid = 0 THEN
+                INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(new.aid,@currtime,@currtime,0,1);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterupdate_on_portalarticletitle AFTER UPDATE ON `".DB::table('portal_article_title')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @aid = old.aid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(@aid,@currtime,@currtime,0,2);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterdelete_on_portalarticletitle AFTER DELETE ON `".DB::table('portal_article_title')."` FOR EACH ROW \r\n
+	BEGIN
+	set @syncid=0;
+	set @modifytime=0;
+	set @synctime=0;
+	set @aid = old.aid;
+	SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
+	SET @currtime = UNIX_TIMESTAMP(NOW());
+	IF @syncid > 0 THEN
+		UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=3 WHERE syncid=@syncid;
+	ELSE
+		INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(@aid,@currtime,@currtime,0,3);
+	END IF;
+	END;";
+	DB::query($sql);
+        /* 门户文章模块结束 */
+
+        /* 门户文章评论模块开始 */
+        $sql = "CREATE TABLE IF NOT EXISTS `".DB::table('bbssdk_portal_comment_sync')."` (
+	  `syncid` int(11) NOT NULL AUTO_INCREMENT,
+	  `cid` int(11) DEFAULT NULL,
+	  `creattime` int(11) DEFAULT NULL,
+	  `modifytime` int(11) DEFAULT '0',
+	  `synctime` int(11) DEFAULT '0',
+	  `flag` tinyint(4) DEFAULT '0',
+	  PRIMARY KEY (`syncid`),
+	  UNIQUE KEY `cid` (`cid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+        DB::query($sql);
+        
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalcomment;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalcomment;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalcomment;";
+	DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterinsert_on_portalcomment AFTER INSERT ON `".DB::table('portal_comment')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        set @cid = new.cid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_comment_sync')."` WHERE cid=@cid;
+        if @syncid = 0 THEN
+                INSERT INTO `".DB::table('bbssdk_portal_comment_sync')."`(cid,modifytime,creattime,synctime,flag) VALUES(new.cid,@currtime,@currtime,0,1);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterupdate_on_portalcomment AFTER UPDATE ON `".DB::table('portal_comment')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @cid = old.cid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_comment_sync')."` WHERE cid=@cid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_portal_comment_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_portal_comment_sync')."`(cid,modifytime,creattime,synctime,flag) VALUES(@cid,@currtime,@currtime,0,2);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterdelete_on_portalcomment AFTER DELETE ON `".DB::table('portal_comment')."` FOR EACH ROW \r\n
+	BEGIN
+	set @syncid=0;
+	set @modifytime=0;
+	set @synctime=0;
+	set @cid = old.cid;
+	SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_comment_sync')."` WHERE cid=@cid;
+	SET @currtime = UNIX_TIMESTAMP(NOW());
+	IF @syncid > 0 THEN
+		UPDATE `".DB::table('bbssdk_portal_comment_sync')."` SET modifytime=@currtime,synctime=0,flag=3 WHERE syncid=@syncid;
+	ELSE
+		INSERT INTO `".DB::table('bbssdk_portal_comment_sync')."`(cid,modifytime,creattime,synctime,flag) VALUES(@cid,@currtime,@currtime,0,3);
+	END IF;
+	END;";
+	DB::query($sql);
+        /* 门户文章评论模块结束 */
+        
+        /* 门户栏目模块结束 */
+        $sql = "CREATE TABLE IF NOT EXISTS `".DB::table('bbssdk_portal_category_sync')."` (
+	  `syncid` int(11) NOT NULL AUTO_INCREMENT,
+	  `catid` int(11) DEFAULT NULL,
+	  `creattime` int(11) DEFAULT NULL,
+	  `modifytime` int(11) DEFAULT '0',
+	  `synctime` int(11) DEFAULT '0',
+	  `flag` tinyint(4) DEFAULT '0',
+	  PRIMARY KEY (`syncid`),
+	  UNIQUE KEY `catid` (`catid`)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+        DB::query($sql);
+	
+	$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalcategory;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalcategory;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalcategory;";
+	DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterinsert_on_portalcategory AFTER INSERT ON `".DB::table('portal_category')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        set @catid = new.catid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_category_sync')."` WHERE catid=@catid;
+        if @syncid = 0 THEN
+                INSERT INTO `".DB::table('bbssdk_portal_category_sync')."`(catid,modifytime,creattime,synctime,flag) VALUES(new.catid,@currtime,@currtime,0,1);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterupdate_on_portalcategory AFTER UPDATE ON `".DB::table('portal_category')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @catid = old.catid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_category_sync')."` WHERE catid=@catid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_portal_category_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_portal_category_sync')."`(catid,modifytime,creattime,synctime,flag) VALUES(@catid,@currtime,@currtime,0,2);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterdelete_on_portalcategory AFTER DELETE ON `".DB::table('portal_category')."` FOR EACH ROW \r\n
+	BEGIN
+	set @syncid=0;
+	set @modifytime=0;
+	set @synctime=0;
+	set @catid = old.catid;
+	SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_category_sync')."` WHERE catid=@catid;
+	SET @currtime = UNIX_TIMESTAMP(NOW());
+	IF @syncid > 0 THEN
+		UPDATE `".DB::table('bbssdk_portal_category_sync')."` SET modifytime=@currtime,synctime=0,flag=3 WHERE syncid=@syncid;
+	ELSE
+		INSERT INTO `".DB::table('bbssdk_portal_category_sync')."`(catid,modifytime,creattime,synctime,flag) VALUES(@catid,@currtime,@currtime,0,3);
+	END IF;
+	END;";
+	DB::query($sql);
+        /* 门户栏目模块结束 */
 }

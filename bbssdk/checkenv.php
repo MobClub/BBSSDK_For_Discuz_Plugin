@@ -27,6 +27,20 @@ if((!isset($_POST['bbssdk_check'])||$_POST['bbssdk_check']!='checked')&&!isset($
             }
         }
     }
+    
+    $logs = DB::fetch_all('show variables like "log_bin%"');
+    $log_bin = $log_bin_c = false;
+    if($logs){
+        foreach ($logs as $l){
+            if($l['Variable_name']=='log_bin'){
+                $log_bin = strtoupper($l['Value'])=='ON'?true:false;
+            }
+            if($l['Variable_name']=='log_bin_trust_function_creators'){
+                $log_bin_c = strtoupper($l['Value'])=='ON'?true:false;
+            }
+        }
+    }
+    
     if($_G['charset']=='gbk'){
         require_once "template/check_gbk.html"; 
     }else{

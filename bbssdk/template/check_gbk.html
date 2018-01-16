@@ -121,6 +121,12 @@ table{ border-collapse:collapse; }
                             <td class="<?php echo !$is_e&&!$is_w?'n':''?>w pdleft16"><?php echo $is_e?'已存在':($is_w?'可写':'不可写（不存在）')?></td>
                             <td class="padleft"><?php echo !$is_e&&!$is_w?'或者手动将bbssdk包中files目录下的“remote.php”文件拷贝文件到discuz的“/api/mobile/”下面。':''?></td>
                         </tr>
+						<tr>
+                            <td>bin-log日志</td>
+                            <td class="padleft">bin-log = OFF 或者 log_bin_trust_function_creators = ON</td>
+                            <td class="<?php echo !$log_bin||$log_bin_c?'':'n'?>w pdleft16" style='padding:0px !important;'> bin-log = <?php echo $log_bin?'ON':'OFF'?><br/>log_bin_trust_function_creators = <?php echo $log_bin_c?'ON':'OFF'?></td>
+                            <td class="padleft"><?php echo !$log_bin||$log_bin_c?'':'可在mysql中执行set global log_bin_trust_function_creators = 1'?></td>
+                        </tr>
                     </tbody>
                 </table>
                 <form method="post">
