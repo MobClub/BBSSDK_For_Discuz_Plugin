@@ -110,6 +110,8 @@ class Forum extends BaseCore
 		$clientip = $this->clientip;
 		$subject = urldecode($this->subject);
 		$message = htmlspecialchars_decode($this->bbcode_encode($this->message));
+                $isanonymous = intval($this->isanonymous);
+                $hiddenreplies = intval($this->hiddenreplies);
 
 		if(!$fid || !$uid || empty($clientip) || empty($subject) || empty($message)){
 			return_status(403);
@@ -181,6 +183,8 @@ class Forum extends BaseCore
 		$params['bbcodeoff'] = 0;
 		$params['smileyoff'] = 0;
 		$params['htmlon'] = 0;
+                $params['isanonymous'] = $isanonymous;
+                $params['hiddenreplies'] = $hiddenreplies;
 
 		$threadsorts = $modthread->forum('threadsorts');
 
@@ -361,6 +365,8 @@ class Forum extends BaseCore
                                         'recommend_add' => (int) $item['recommend_add'],
                                         'recommend_sub' => (int) $item['recommend_sub'],
                                         'recommends' => (int) $item['recommends'],
+                                        'status' =>$item['status'],
+                                        'hiddenreplies' => getstatus($item['status'], 2),
                                         'threadurl'=> get_site_url().'plugin.php?id=bbssdk:share&tid='.(int)$item['tid'],
 					'message' => isset($current['mdtype']) && $current['mdtype'] == 1 ? $this->MarkdownToHtml->transform($current['message']) : discuzcode($current['message'], $current['smileyoff'], $current['bbcodeoff'], $current['htmlon']),
 				);

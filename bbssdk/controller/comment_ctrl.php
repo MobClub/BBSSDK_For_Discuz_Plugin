@@ -83,6 +83,7 @@ class Comment extends BaseCore
 		$reppid = intval($this->reppid);
 		$clientip = $this->clientip;
 		$message = htmlspecialchars_decode($this->bbcode_encode($this->message));
+                $isanonymous = $this->isanonymous;
 
 		if(!$fid || !$uid || !$tid || empty($clientip) || empty($message)){
 			return_status(403);
@@ -145,6 +146,7 @@ class Comment extends BaseCore
 			'smileyoff' => 0,
 			'htmlon' => 0,
 			'useip' => $clientip,
+                        'isanonymous'=>$isanonymous
 		);
 
 		if($reppid>0){
