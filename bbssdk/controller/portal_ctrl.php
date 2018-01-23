@@ -314,12 +314,13 @@ class Portal extends BaseCore
             global $_G;
             loadcache('portalcategory');
             $category = $_G['cache']['portalcategory'];
+            $list = array();
             if($category){
-                foreach ($category as &$v){
-                    $v = $this->formatCategory($v);
+                foreach ($category as $v){
+                    $list[] = $this->formatCategory($v);
                 }
             }
-            $this->success_result($category);
+            $this->success_result($list);
         }
         function get_categoryitem(){
             global $_G;
@@ -340,6 +341,7 @@ class Portal extends BaseCore
         function formatCategory($item){
             $res['catid']          = $item['catid'];
             $res['upid']           = $item['upid'];
+            $res['catname']        = $item['catname'];
             $res['articles']       = $item['articles'];
             $res['allowcomment']   = $item['allowcomment'];
             $res['displayorder']   = $item['displayorder'];
