@@ -6,6 +6,9 @@ require_once 'table/table_bbssdk_member_sync.php';
 require_once 'table/table_bbssdk_forum_sync.php';
 require_once 'table/table_bbssdk_comment_sync.php';
 require_once 'table/table_bbssdk_notification_sync.php';
+require_once 'table/table_bbssdk_portal_article_sync.php';
+require_once 'table/table_bbssdk_portal_category_sync.php';
+require_once 'table/table_bbssdk_portal_comment_sync.php';
 
 class Ping extends BaseCore
 {
@@ -99,6 +102,42 @@ class Ping extends BaseCore
                 }
                 c::t('bbssdk_notification_sync')->change_status($syncids);
             }
+            //门户文章
+            $portal_article = $syncids = array();
+            $articles = c::t('bbssdk_portal_article_sync')->unsync_list_by_time($t,100);
+            if($articles){
+                foreach ($articles as $article){
+                    array_push($syncids, $article['syncid']);
+                    
+                    $article['aid']*=$article['flag']==3?-1:1;                    
+                    array_push($portal_article, $article['aid']);
+                }
+                c::t('bbssdk_portal_article_sync')->change_status($syncids);
+            }
+            //门户栏目
+            $portal_category = $syncids = array();
+            $portal_cats = c::t('bbssdk_portal_category_sync')->unsync_list_by_time($t,100);
+            if($portal_cats){
+                foreach ($portal_cats as $portal_cat){
+                    array_push($syncids, $portal_cat['syncid']);
+                    
+                    $portal_cat['catid']*=$portal_cat['flag']==3?-1:1;                    
+                    array_push($portal_category, $portal_cat['catid']);
+                }
+                c::t('bbssdk_portal_category_sync')->change_status($syncids);
+            }
+            //门户评论
+            $portal_comment = $syncids = array();
+            $portal_cs = c::t('bbssdk_portal_comment_sync')->unsync_list_by_time($t,100);
+            if($portal_cs){
+                foreach ($portal_cs as $portal_c){
+                    array_push($syncids, $portal_c['syncid']);
+                    
+                    $portal_c['cid']*=$portal_c['flag']==3?-1:1;                    
+                    array_push($portal_comment, $portal_c['cid']);
+                }
+                c::t('bbssdk_portal_comment_sync')->change_status($syncids);
+            }
             
             $t = DB::fetch_first('select UNIX_TIMESTAMP(NOW()) as timestamp');
             $data['t']          = $t['timestamp'];
@@ -109,7 +148,9 @@ class Ping extends BaseCore
             $data['threads']    = $threads;
             $data['posts']      = $posts;
             $data['notices']    = $notices;
-            
+            $data['portal_article']  = $portal_article;
+            $data['portal_category'] = $portal_category;
+            $data['portal_comment']  = $portal_comment;
             $this->success_result($data);
 	}
 }
