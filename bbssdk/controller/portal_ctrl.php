@@ -37,6 +37,7 @@ class Portal extends BaseCore
         function get_commentitem(){
             $cid  = intval($_REQUEST['cid']);
             $data = DB::fetch_first('SELECT * FROM %t WHERE cid = %d limit 1', array('portal_comment', $cid));
+            $data['avatar'] = avatar($data['uid'],'middle',1);
             $this->success_result($data);
         }
         function post_deletecomment(){
@@ -64,7 +65,7 @@ class Portal extends BaseCore
             global $_G;
             $uid  = intval($_REQUEST['uid']);
             $aid  = intval($_REQUEST['aid']);
-            $message = $_POST['message'];
+            $message = $_REQUEST['message'];
             if(!$uid) return_status(403);
             $_G['uid'] = $uid;
             $member = getuserbyuid($uid, 1);
@@ -89,12 +90,70 @@ class Portal extends BaseCore
             if($waittime > 0) {
                 return_status(807,'等待'.$waittime.'秒再发');
             }
-
-            $retmessage = addportalarticlecomment($aid, $message, 'aid');
-            if($retmessage=='do_success'){
-                return_status(200);
+            
+            $retmessage = $this->addportalarticlecomment($aid, $message, 'aid');
+            if(is_int($retmessage)){
+                $data = DB::fetch_first('SELECT * FROM %t WHERE cid = %d limit 1', array('portal_comment', $retmessage));
+                $data['avatar'] = avatar($data['uid'],'middle',1);
+                $this->success_result($data);
             }
+            
             return_status(805,$retmessage);
+        }
+        function addportalarticlecomment($id, $message, $idtype = 'aid') {
+                global $_G;
+
+                $id = intval($id);
+                if(empty($id)) {
+                        return 'comment_comment_noexist';
+                }
+                $message = getstr($message, $_G['group']['allowcommentarticle'], 0, 0, 1, 0);
+                if(strlen($message) < 2) return 'content_is_too_short';
+
+                $idtype = in_array($idtype, array('aid' ,'topicid')) ? $idtype : 'aid';
+                $tablename = $idtype == 'aid' ? 'portal_article_title' : 'portal_topic';
+                $data = C::t($tablename)->fetch($id);
+                if(empty($data)) {
+                        return 'comment_comment_noexist';
+                }
+                if($data['allowcomment'] != 1) {
+                        return 'comment_comment_notallowed';
+                }
+
+                $message = censor($message);
+                if(censormod($message)) {
+                        $comment_status = 1;
+                } else {
+                        $comment_status = 0;
+                }
+
+                $setarr = array(
+                        'uid' => $_G['uid'],
+                        'username' => $_G['username'],
+                        'id' => $id,
+                        'idtype' => $idtype,
+                        'postip' => $_G['clientip'],
+                        'port' => $_G['remoteport'],
+                        'dateline' => $_G['timestamp'],
+                        'status' => $comment_status,
+                        'message' => $message
+                );
+
+                $pcid = C::t('portal_comment')->insert($setarr, true);
+
+                if($comment_status == 1) {
+                        updatemoderate($idtype.'_cid', $pcid);
+                        $notifykey = $idtype == 'aid' ? 'verifyacommont' : 'verifytopiccommont';
+                        manage_addnotify($notifykey);
+                }
+                $tablename = $idtype == 'aid' ? 'portal_article_count' : 'portal_topic';
+                C::t($tablename)->increase($id, array('commentnum' => 1));
+                C::t('common_member_status')->update($_G['uid'], array('lastpost' => $_G['timestamp']), 'UNBUFFERED');
+
+                if($data['uid'] != $_G['uid']) {
+                        updatecreditbyaction('portalcomment', 0, array(), $idtype.$id);
+                }
+                return $pcid;
         }
         function post_editcomment(){
             require_once libfile('function/home');
@@ -131,6 +190,7 @@ class Portal extends BaseCore
             }
             C::t('portal_comment')->update($comment['cid'], array('message' => $message, 'status' => $comment_status, 'postip' => $_G['clientip'], 'port' => $_G['remoteport']));
             $data = DB::fetch_first('SELECT * FROM %t WHERE cid = %d limit 1', array('portal_comment', $cid));
+            $data['avatar'] = avatar($data['uid'],'middle',1);
             $this->success_result($data);
 
         }
@@ -302,6 +362,7 @@ class Portal extends BaseCore
             $res['summary']    = $article['summary'];
             $res['content']    = $content['content'];
             $res['pic']        = $article['pic'];
+            $res['allowcomment']= $article['allowcomment'];
             $res['status']     = $article['status'];
             $res['click1']     = $article['click1'];
             $res['click2']     = $article['click2'];
