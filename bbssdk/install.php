@@ -14,7 +14,7 @@ showsubmenusteps($installlang['title'], array(
 
 $pluginName = 'bbssdk';
 $final = false;
-$delPlugin = rtrim($_G['siteurl'],'/').$_SERVER['PHP_SELF'].'?action=plugins&operation=delete&pluginid='.$_GET['pluginid'];
+$delPlugin = $_SERVER['PHP_SELF'].'?action=plugins&operation=delete&pluginid='.$_GET['pluginid'];
 switch($_GET['step']){
 	default:
 		require_once 'check.php';
@@ -50,16 +50,7 @@ switch($_GET['step']){
 		if(extension_loaded('curl')){
 			if($_GET['modetype'] == '1'){
 				if(!submitcheck('submit')){
-					$mob_setting_url = trim($_G['setting']['discuzurl'],'/').'/api/mobile/remote.php';
-					showtips($installlang['hd_tip1']);
-					showformheader("{$form_url}&step=install&modetype=1");
-					showtableheader($installlang['reg_header']);
-					showsetting('AppKey', 'appkey', '', 'text', '', '', $installlang['must_fill']);
-					showsetting('AppSecret', 'appsecret', '', 'text', '', '', $installlang['must_fill']);
-					showsetting($installlang['address_key'], 'discuzurl', $mob_setting_url, 'text', '', '', $installlang['must_fill']);
-					showsubmit('submit', 'submit');
-					showtablefooter();
-					showformfooter();
+					$finish = TRUE;
 				}else{
 					if(!$_GET['appkey'] || !$_GET['appsecret']) cpmsg($installlang['not_fill'], "", 'error');
 					$appkey = (string) trim($_GET['appkey']);

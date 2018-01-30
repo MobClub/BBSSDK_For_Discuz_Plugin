@@ -17,6 +17,8 @@ class Menu extends BaseCore
 		foreach (array_values($actset['heatthread']['iconlevels']) as $item) {
 			array_push($iconlevels, intval($item));
 		}
+                $setting = C::t('common_setting')->fetch_all(array('bbssdk_setting'));
+                $setting = (array)unserialize($setting['bbssdk_setting']);
 		sort($iconlevels);
 		$setting = array(
 			'iconlevels' => $iconlevels,
@@ -27,7 +29,8 @@ class Menu extends BaseCore
 			'strongpw'=>is_array($actset['strongpw']) ? $actset['strongpw'] : ( $actset['strongpw'] > 0 ? array($actset['strongpw']) : array() ),
 			'regverify'=>$actset['regverify'],
 			'charset'=>$_G['charset'],
-                        'portalstatus'=>$actset['portalstatus']
+                        'portalstatus'=>$actset['portalstatus'],
+                        'bbssdk_init'=> isset($setting['init'])?$setting['init']:1,//1论坛  2论坛+门户
 		);
 		$this->success_result($setting);
 	}
