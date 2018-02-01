@@ -102,6 +102,10 @@ $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalarticletitle;";
 DB::query($sql);
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticletitle;";
 DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalarticlerelated;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticlerelated;";
+DB::query($sql);
 
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalcomment;";
 DB::query($sql);

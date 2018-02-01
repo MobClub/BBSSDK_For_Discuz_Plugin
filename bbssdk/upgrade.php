@@ -267,6 +267,10 @@ function upgrade(){
 	DB::query($sql);
         $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticletitle;";
 	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalarticlerelated;";
+	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticlerelated;";
+	DB::query($sql);
         
         $sql = "CREATE TRIGGER bbssdk_afterinsert_on_portalarticletitle AFTER INSERT ON `".DB::table('portal_article_title')."` FOR EACH ROW \r\n
         BEGIN
@@ -313,6 +317,38 @@ function upgrade(){
 	END IF;
 	END;";
 	DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterinsert_on_portalarticlerelated AFTER INSERT ON `".DB::table('portal_article_related')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @aid = new.aid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(@aid,@currtime,@currtime,0,2);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterdelete_on_portalarticlerelated AFTER DELETE ON `".DB::table('portal_article_related')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @aid = old.aid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(@aid,@currtime,@currtime,0,2);
+        END IF;
+        END;";
+        DB::query($sql);
         /* 门户文章模块结束 */
 
         /* 门户文章评论模块开始 */
