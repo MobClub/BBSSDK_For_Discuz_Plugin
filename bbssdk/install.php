@@ -45,45 +45,14 @@ switch($_GET['step']){
 		C::t('common_plugin')->update($_GET['pluginid'], array('available' => '1'));
 		updatecache(array('plugin', 'setting', 'styles'));
                 dheader('location: '.$_SERVER['PHP_SELF']."?{$request_url}&step=install&modetype=1");
-//		cpmsg($installlang['ifreg'], "{$request_url}&step=install&modetype=1", 'form', array(), '', TRUE, $delPlugin);
 	case 'install':
 		if(extension_loaded('curl')){
-			if($_GET['modetype'] == '1'){
-				if(!submitcheck('submit')){
-					$finish = TRUE;
-				}else{
-					if(!$_GET['appkey'] || !$_GET['appsecret']) cpmsg($installlang['not_fill'], "", 'error');
-					$appkey = (string) trim($_GET['appkey']);
-					$appsecret = (string) trim($_GET['appsecret']);
-					$mob_setting_url = empty($_GET['discuzurl']) ? trim($_G['setting']['discuzurl'],'/').'/api/mobile/remote.php' : trim($_GET['discuzurl']);
-
-					$appInfo = json_decode(utf8_encode(file_get_contents($mob_setting_url."?check=check")),true);
-
-					if(!$appInfo['plugin_info']['bbssdk']['enabled']){
-						cpmsg($installlang['discuzurl_error'], "", 'error');
-					}
-
-					$mob_request_url = "http://admin.mob.com/api/bbs/info?appkey=$appkey&url=".urlencode($mob_setting_url);
-
-					$result = json_decode(utf8_encode(file_get_contents($mob_request_url)),true);
-
-					write_log('query url ==>'.$mob_request_url."\t response ==>".json_encode($result));
-
-					if($result['status'] == 200 || $result['status'] == 502){
-						$pluginid = intval($_GET['pluginid']);
-					    C::t('common_pluginvar')->update_by_variable($pluginid, 'appkey', array('value' => $appkey));
-					    C::t('common_pluginvar')->update_by_variable($pluginid, 'appsecret', array('value' => $appsecret));
-						updatecache(array('plugin', 'setting', 'styles'));
-						cleartemplatecache();
-						cpmsg($installlang['install_succeed'], "{$request_url}&step=ok", 'loading', '');
-					}else{
-						$msg = $result['status'] == 503 ? $installlang['address_msg'] : $installlang['errmsg'] ;
-						cpmsg_error($msg, '', diconv($result['msg'], 'UTF-8', CHARSET));
-					}
-				}
-			}
+                    if($_GET['modetype'] == '1'){
+                            dheader('location: '.$_SERVER['PHP_SELF']."?action=plugins&operation=config&do=".$plugin['pluginid']."&identifier=bbssdk&pmod=bbssdksetting");
+                            $finish = TRUE;
+                    }
 		}else{
-			cpmsg($installlang['curl_unsupported'], $delPlugin, 'error');
+                    cpmsg($installlang['curl_unsupported'], $delPlugin, 'error');
 		}
 		break;
 	case 'ok':

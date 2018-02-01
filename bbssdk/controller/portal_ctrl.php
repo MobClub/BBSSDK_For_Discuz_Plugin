@@ -69,6 +69,7 @@ class Portal extends BaseCore
             if(!$uid) return_status(403);
             $_G['uid'] = $uid;
             $member = getuserbyuid($uid, 1);
+            $_G['username'] = $member['username'];
             C::app()->var['member'] = $member;
             $_G['groupid'] = $groupid = $member['groupid'];
             $groupid > 0 && $authAll = DB::fetch_all("select * from ".DB::table('common_usergroup')." a LEFT JOIN ".DB::table('common_usergroup_field')." b on a.groupid=b.groupid where a.groupid in($groupid)");
@@ -95,6 +96,8 @@ class Portal extends BaseCore
             if(is_int($retmessage)){
                 $data = DB::fetch_first('SELECT * FROM %t WHERE cid = %d limit 1', array('portal_comment', $retmessage));
                 $data['avatar'] = avatar($data['uid'],'middle',1);
+                $article = $this->getdetail($data['id']);
+                $data['commentnum'] = $article['commentnum'];
                 $this->success_result($data);
             }
             
@@ -102,7 +105,6 @@ class Portal extends BaseCore
         }
         function addportalarticlecomment($id, $message, $idtype = 'aid') {
                 global $_G;
-
                 $id = intval($id);
                 if(empty($id)) {
                         return 'comment_comment_noexist';
@@ -338,7 +340,7 @@ class Portal extends BaseCore
             if(($relateds = C::t('portal_article_related')->fetch_all_by_aid($aid))) {
                     foreach(C::t('portal_article_title')->fetch_all(array_keys($relateds)) as $raid => $value) {
                             $value['uri'] = fetch_article_url($value);
-                            $article['related'][$raid] = $value;
+                            $article['related'][] = $value;
                     }
             }
             if($article['pic']) {
@@ -361,6 +363,7 @@ class Portal extends BaseCore
             $res['favtimes']   = $article['favtimes'];
             $res['summary']    = $article['summary'];
             $res['content']    = $content['content'];
+            $res['related']   =  $article['related'];
             $res['pic']        = $article['pic'];
             $res['allowcomment']= $article['allowcomment'];
             $res['status']     = $article['status'];

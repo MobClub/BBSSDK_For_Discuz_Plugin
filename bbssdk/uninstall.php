@@ -28,6 +28,15 @@ DB::query($sql);
 $sql = "drop table  if exists `" . DB::table('bbssdk_oauth') . "`";
 DB::query($sql);
 
+$sql = "drop table  if exists `" . DB::table('bbssdk_portal_article_sync') . "`";
+DB::query($sql);
+
+$sql = "drop table  if exists `" . DB::table('bbssdk_portal_comment_sync') . "`";
+DB::query($sql);
+
+$sql = "drop table  if exists `" . DB::table('bbssdk_portal_category_sync') . "`";
+DB::query($sql);
+
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_menu;";
 DB::query($sql);
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_menu;";
@@ -87,6 +96,26 @@ DB::query($sql);
 $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_homenotification;";
 DB::query($sql);
 
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalarticletitle;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalarticletitle;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticletitle;";
+DB::query($sql);
+
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalcomment;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalcomment;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalcomment;";
+DB::query($sql);
+
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalcategory;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalcategory;";
+DB::query($sql);
+$sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalcategory;";
+DB::query($sql);
 
 $sql = "delete from ". DB::table('common_cron') ." where filename like 'bbssdk%'";
 DB::query($sql);

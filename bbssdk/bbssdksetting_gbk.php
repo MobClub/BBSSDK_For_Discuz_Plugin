@@ -1,7 +1,8 @@
 <?php
 require_once 'vendor/autoload.php';
 require_once 'lib/function.php';
-$setting = C::t('common_setting')->fetch_all(array('bbssdk_setting'));
+$setting = C::t('common_setting')->fetch_all(array('bbssdk_setting','portalstatus'));
+$portalstatus = $setting['portalstatus'];
 $setting = (array)unserialize($setting['bbssdk_setting']);
 
 $limit_n = 0;
@@ -30,7 +31,7 @@ if(!submitcheck('checksub')){
         <ul onmouseover="altStyle(this);">
         <li><input class="radio" type="radio" name="setting[init]" value="1" '.($setting['init']==1||!isset($setting['init'])?'checked':'').'>&nbsp;论坛</li>
         <li><input class="radio" type="radio" name="setting[init]" value="2" '.($setting['init']==2?'checked':'').'>&nbsp;论坛+门户</li>
-        </ul></td><td class="vtop tips2" s="1">论坛+门户 选项需要开启门户功能</td>
+        </ul></td><td class="vtop tips2" s="1">若勾选【论坛+门户】，请确保门户功能已开启</td>
         </tr>';
     $tips = '<li>如非数据异常，无需重新初始化同步，BBSSDK会自动同步帖子和评论</li>';
     $tips.= '<li>一个月仅可重新初始化同步2次</li>';
@@ -45,9 +46,22 @@ if(!submitcheck('checksub')){
     
     echo "<script>
     function check_submit(){
-        showDialog('每月只可初始化2次！当前还可以初始化".$limit_n."次','confirm','',function(){
+        var portalstatus = ".$portalstatus."
+        var input = document.getElementsByTagName(\"input\");
+        for(var i = 0,l = input.length;i < l;i++){
+            if(/^setting\[init\]/.test(input[i].name)){
+                if(input[i].checked){
+                    var v= input[i].value
+                }
+            }
+        }
+        if(v==2&&portalstatus!=1){
+            showDialog('门户功能尚未开启','alert')
+        }else{
+            showDialog('每月只可初始化2次！当前还可以初始化".$limit_n."次','confirm','',function(){
             ".($limit_n?'document.getElementById(\'cpform\').submit();':'')."
             })
+        }
     }
     </script>";
 }else{
@@ -59,9 +73,11 @@ if(!submitcheck('checksub')){
     $appInfo = json_decode(utf8_encode(file_get_contents($mob_setting_url."?check=check")),true);
 
     if(!$appInfo['plugin_info']['bbssdk']['enabled']){
-            cpmsg("论坛地址错误，请重新输入", "", 'error');
+        cpmsg("论坛地址错误，请重新输入", "", 'error');
     }
-
+    if($portalstatus!=1&&$_POST['setting']['init']==2){
+        cpmsg("门户功能尚未开启", "", 'error');
+    }
     $mob_request_url = "http://admin.mob.com/api/bbs/info?appkey=$appkey&url=".urlencode($mob_setting_url);
 
     $result = json_decode(utf8_encode(file_get_contents($mob_request_url)),true);
