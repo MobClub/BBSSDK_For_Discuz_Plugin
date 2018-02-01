@@ -342,6 +342,9 @@ class Portal extends BaseCore
             if(($relateds = C::t('portal_article_related')->fetch_all_by_aid($aid))) {
                     foreach(C::t('portal_article_title')->fetch_all(array_keys($relateds)) as $raid => $value) {
                             $value['uri'] = fetch_article_url($value);
+                            if($value['pic']) {
+                                $value['pic'] = $_G['setting']['siteurl'].pic_get($value['pic'], '', $value['thumb'], $value['remote'], 1, 1);
+                            }
                             $article['related'][] = $value;
                     }
             }
