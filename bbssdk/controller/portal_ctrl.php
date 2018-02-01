@@ -328,9 +328,11 @@ class Portal extends BaseCore
             $this->success_result($detail);
         }
         function getdetail($aid){
+            global $_G;
             $content = C::t('portal_article_content')->fetch_by_aid_page($aid, 1);
             require_once libfile('function/blog');
             require_once libfile('function/portal');
+            require_once libfile('function/home');
             $content['content'] = blog_bbcode($content['content']);
             $article = C::t('portal_article_title')->fetch($aid);
             
@@ -344,7 +346,7 @@ class Portal extends BaseCore
                     }
             }
             if($article['pic']) {
-                $article['pic'] = pic_get($article['pic'], '', $article['thumb'], $article['remote'], 1, 1);
+                $article['pic'] = $_G['setting']['siteurl'].pic_get($article['pic'], '', $article['thumb'], $article['remote'], 1, 1);
             }
             return $this->formatArticle($article,$content);
         }
