@@ -33,7 +33,9 @@ class BaseCore
 	private function check_sign()
 	{
 		global $_G;
-		$bbssdk = $_G['cache']['plugin']['bbssdk'];
+                $setting = C::t('common_setting')->fetch_all(array('bbssdk_setting','portalstatus'));
+                $bbssdk = (array)unserialize($setting['bbssdk_setting']);
+                
 		$sign = !empty($_REQUEST['token']) ? $_REQUEST['token'] : $this->sign;
 		$time = intval($this->time);
 		$random = $this->random;
