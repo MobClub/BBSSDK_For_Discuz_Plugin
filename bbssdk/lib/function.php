@@ -109,13 +109,14 @@ function push_http_query($url, $data, $type='push' , $limit=0, $timeout=5)
 {
     try{    
         global $_G;
-        loadcache('plugin');
-        
-        if(empty($_G['cache']['plugin']['bbssdk']['appkey']))
+//        loadcache('plugin');
+        $setting = C::t('common_setting')->fetch_all(array('bbssdk_setting'));
+        $setting = (array)unserialize($setting['bbssdk_setting']);
+        if(empty($setting['appkey']))
             throw new Exception("Error Appkey is Empty", 1);
 
         $pushArray = array(
-            'appkey' => $_G['cache']['plugin']['bbssdk']['appkey'],
+            'appkey' => $setting['appkey'],
             'data' => $data
         );
 

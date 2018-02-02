@@ -10,7 +10,7 @@ class Cron
 	function __construct()
 	{
 		global $_G;
-		$this->notify_api = trim($_G['cache']['plugin']['bbssdk']['notify_api'],'/');
+		$this->notify_api = 'http://data.bbssdk.mob.com/';
 	}
 
 	public function menu_sync()
