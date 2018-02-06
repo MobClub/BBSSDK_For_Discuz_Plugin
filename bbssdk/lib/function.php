@@ -80,7 +80,7 @@ function return_status($code,$params=null)
     exit;
 }
 
-function message_filter($text)
+function message_filter($text,$filtera = false)
 {
     global $_G; 
     $result = $text;
@@ -95,7 +95,18 @@ function message_filter($text)
             }
             return $matches[0];
         }, $result);
-
+    if($filtera){
+        $result = preg_replace_callback("%(<a[^>]*href=['\"])([^'\"]*)(['\"][^>]*>)%is", 
+        function($matches) use ($_G) {
+            if(empty($matches[2]) || preg_match("%[\[\]]%is", $matches[2])){
+                return '';
+            }
+            else if(!preg_match("%^http%is", $matches[2])){
+                return $matches[1] . $_G['setting']['siteurl'] . $matches[2] . $matches[3];
+            }
+            return $matches[0];
+        }, $result);
+    }
     $result = preg_replace(array(
             "%style=['\"][^\"]*['\"]%is",
             "%(onclick|onmouseover|onload|width)=['\"][^\"]*['\"]%is",

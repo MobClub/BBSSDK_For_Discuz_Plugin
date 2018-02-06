@@ -20,14 +20,14 @@ $thread = relation_item($item, $current);
 $posts  = get_list($item['fid'], $tid);
 $foruminfo = C::t('forum_forum')->fetch_info_by_fid($item['fid']);
 
-loadcache('plugin');
-global $_G;
-$appkey = $_G['cache']['plugin']['bbssdk']['appkey'];
+$setting = C::t('common_setting')->fetch_all(array('bbssdk_setting'));
+$setting = (array)unserialize($setting['bbssdk_setting']);
+$appkey  = $setting['appkey'];
 
 if($_G['charset']=='gbk'){
-    require_once 'h5/html/share_gbk.html';
+    require_once 'h5/forum/html/share_gbk.html';
 }else{
-    require_once 'h5/html/share.html'; 
+    require_once 'h5/forum/html/share.html'; 
 }
 
 function relation_item($item, $current){

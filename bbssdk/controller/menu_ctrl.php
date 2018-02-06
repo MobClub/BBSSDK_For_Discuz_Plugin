@@ -31,6 +31,7 @@ class Menu extends BaseCore
 			'charset'=>$_G['charset'],
                         'portalstatus'=>$actset['portalstatus'],
                         'bbssdk_init'=> isset($setting['init'])?$setting['init']:1,//1论坛  2论坛+门户
+                        'bbssdk_version'=>$_G['setting']['plugins']['version']['bbssdk']
 		);
 		$this->success_result($setting);
 	}

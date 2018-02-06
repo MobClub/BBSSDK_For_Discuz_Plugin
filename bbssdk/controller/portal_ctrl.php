@@ -22,6 +22,7 @@ class Portal extends BaseCore
             if($csubject['commentnum']) {
                 $query = C::t('portal_comment')->fetch_all_by_id_idtype($id, $idtype, 'dateline', 'DESC', $start, $perpage);
                 foreach($query as $value) {
+                    $value['avatar'] = avatar($value['uid'],'middle',1);
                     $commentlist[] = $value;
                 }
             }
@@ -354,11 +355,12 @@ class Portal extends BaseCore
             return $this->formatArticle($article,$content);
         }
         function formatArticle($article,$content){
+            global $_G;
             $res['catid']      = $article['catid'];
             $res['cid']        = $content['cid'];
             $res['aid']        = $content['aid'];
-            $res['title']      = $article['title'];
-            $res['author']     = $article['username'];
+            $res['title']      = htmlspecialchars_decode($article['title']);
+            $res['author']     = htmlspecialchars_decode($article['username']);
             $res['authorid']   = $article['uid'];
             $res['avatar']     = avatar($article['uid'],'middle',1);
             $res['dateline']   = $content['dateline'];
@@ -367,7 +369,7 @@ class Portal extends BaseCore
             $res['sharetimes'] = $article['sharetimes'];
             $res['favtimes']   = $article['favtimes'];
             $res['summary']    = $article['summary'];
-            $res['content']    = $content['content'];
+            $res['content']    = htmlspecialchars_decode(message_filter($content['content'],1));
             $res['related']   =  $article['related'];
             $res['pic']        = $article['pic'];
             $res['allowcomment']= $article['allowcomment'];
@@ -377,6 +379,16 @@ class Portal extends BaseCore
             $res['click3']     = $article['click3'];
             $res['click4']     = $article['click4'];
             $res['click5']     = $article['click5'];
+            $res['shareurl']   = get_site_url().'plugin.php?id=bbssdk:portal&aid='.$content['aid'];
+            $res['attachment'] = $attachs = array();         
+            foreach(C::t('portal_attachment')->fetch_all_by_aid($res['aid']) as $value) {
+                if(!$value['isimage']) {
+                    $value['url'] = $value['remote'] ? $_G['setting']['ftp']['attachurl'].'portal/'.$value['attachment'] : rtrim($_G['setting']['siteurl'],'/').'/data/attachment/portal/'.$value['attachment'];
+                    $attachs[] = $value;
+                    
+                } 
+            }
+            $res['attachment'] = $attachs;
             return $res;
         }
         function get_categories(){
@@ -410,7 +422,7 @@ class Portal extends BaseCore
         function formatCategory($item){
             $res['catid']          = $item['catid'];
             $res['upid']           = $item['upid'];
-            $res['catname']        = $item['catname'];
+            $res['catname']        = htmlspecialchars_decode($item['catname']);
             $res['articles']       = $item['articles'];
             $res['allowcomment']   = $item['allowcomment'];
             $res['displayorder']   = $item['displayorder'];
