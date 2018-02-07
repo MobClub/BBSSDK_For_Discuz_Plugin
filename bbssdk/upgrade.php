@@ -282,6 +282,8 @@ function upgrade(){
         SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
         if @syncid = 0 THEN
                 INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(new.aid,@currtime,@currtime,0,1);
+        ELSE
+                UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=1 WHERE syncid=@syncid;
         END IF;
         END;";
         DB::query($sql);
