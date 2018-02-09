@@ -94,7 +94,8 @@ class Menu extends BaseCore
 				'description' => $item['description'],
                                 'viewperm' => $item['viewperm']?explode("\t", trim($item['viewperm'])):array(),
                                 'postperm' => $item['postperm']?explode("\t", trim($item['postperm'])):array(),
-                                'replyperm' => $item['replyperm']?explode("\t", trim($item['replyperm'])):array()
+                                'replyperm' => $item['replyperm']?explode("\t", trim($item['replyperm'])):array(),
+                                'allowanonymous'=>$item['allowanonymous']
 			);
 		}
 		return $newItem;

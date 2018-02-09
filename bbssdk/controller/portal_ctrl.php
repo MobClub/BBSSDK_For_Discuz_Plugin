@@ -360,8 +360,9 @@ class Portal extends BaseCore
             $res['cid']        = $content['cid'];
             $res['aid']        = $content['aid'];
             $res['title']      = htmlspecialchars_decode($article['title']);
-            $res['author']     = htmlspecialchars_decode($article['username']);
-            $res['authorid']   = $article['uid'];
+            $res['author']     = htmlspecialchars_decode($article['author']);
+            $res['username']   = htmlspecialchars_decode($article['username']);
+            $res['uid']        = $article['uid'];
             $res['avatar']     = avatar($article['uid'],'middle',1);
             $res['dateline']   = $content['dateline'];
             $res['viewnum']    = $article['viewnum'];

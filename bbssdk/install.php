@@ -848,6 +848,57 @@ function install_action()
 	END;";
 	DB::query($sql);
         /* 门户栏目模块结束 */
+        
+        /* 用户组模块开始 */
+        $sql = "CREATE TRIGGER bbssdk_afterinsert_on_usergroup AFTER INSERT ON `".DB::table('common_usergroup_field')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        set @groupid = new.groupid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_usergroup_sync')."` WHERE groupid=@groupid;
+        IF @syncid = 0 THEN
+                INSERT INTO `".DB::table('bbssdk_usergroup_sync')."`(groupid,modifytime,creattime,synctime,flag) VALUES(new.groupid,@currtime,@currtime,0,1);
+        ELSE
+                UPDATE `".DB::table('bbssdk_usergroup_sync')."` SET modifytime=@currtime,synctime=0,flag=1 WHERE syncid=@syncid;
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterupdate_on_usergroup AFTER UPDATE ON `".DB::table('common_usergroup_field')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @groupid = old.groupid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_usergroup_sync')."` WHERE groupid=@groupid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_usergroup_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_usergroup_sync')."`(groupid,modifytime,creattime,synctime,flag) VALUES(@groupid,@currtime,@currtime,0,2);
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterdelete_on_usergroup AFTER DELETE ON `".DB::table('common_usergroup_field')."` FOR EACH ROW \r\n
+	BEGIN
+	set @syncid=0;
+	set @modifytime=0;
+	set @synctime=0;
+	set @groupid = old.groupid;
+	SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_usergroup_sync')."` WHERE groupid=@groupid;
+	SET @currtime = UNIX_TIMESTAMP(NOW());
+	IF @syncid > 0 THEN
+		UPDATE `".DB::table('bbssdk_usergroup_sync')."` SET modifytime=@currtime,synctime=0,flag=3 WHERE syncid=@syncid;
+	ELSE
+		INSERT INTO `".DB::table('bbssdk_usergroup_sync')."`(groupid,modifytime,creattime,synctime,flag) VALUES(@groupid,@currtime,@currtime,0,3);
+	END IF;
+	END;";
+	DB::query($sql);
+        /* 用户组模块结束 */
+
 	for($i=0; $i < 60; $i++){
 		$times = array();
 		for($j=0;$j<12 && $i+$j<60;$j++){
