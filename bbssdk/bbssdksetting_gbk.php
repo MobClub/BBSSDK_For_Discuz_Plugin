@@ -59,7 +59,7 @@ if(!submitcheck('checksub')){
             showDialog('门户功能尚未开启','alert')
         }else{
             showDialog('每月只可初始化2次！当前还可以初始化".$limit_n."次','confirm','',function(){
-            ".($limit_n?'document.getElementById(\'cpform\').submit();':'')."
+            ".($limit_n?'document.getElementById(\'cpform\').submit();':'location.reload();')."
             })
         }
     }
@@ -69,6 +69,8 @@ if(!submitcheck('checksub')){
     $appkey = (string) trim($_POST['setting']['appkey']);
     $appsecret = (string) trim($_POST['setting']['appsecret']);
     $mob_setting_url = empty($_GET['discuzurl']) ? trim($_G['setting']['discuzurl'],'/').'/api/mobile/remote.php' : trim($_GET['discuzurl']);
+
+    $_POST['setting'] = array_map('trim', $_POST['setting']);
     
     $appInfo = json_decode(utf8_encode(file_get_contents($mob_setting_url."?check=check")),true);
 

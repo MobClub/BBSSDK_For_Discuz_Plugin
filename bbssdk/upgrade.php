@@ -536,4 +536,34 @@ function upgrade(){
 	END;";
 	DB::query($sql);
         /* 用户组模块结束 */
+        /* 帖子触发器 fix */
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_forum;";
+	DB::query($sql);
+        // 帖子修改 
+	$sql = "CREATE TRIGGER bbssdk_afterupdate_on_forum AFTER UPDATE ON `".DB::table('forum_thread')."` FOR EACH ROW \n
+	BEGIN
+	set @fid = old.fid;
+	set @tid = old.tid;
+        set @newfid = new.fid;
+	SET @currtime = UNIX_TIMESTAMP(NOW());
+	set @syncid=0;
+	set @modifytime=0;
+	set @synctime=0;
+	SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_forum_sync')."` where fid=@fid and tid=@tid;
+	IF @syncid>0 THEN
+                IF @newfid = @fid THEN
+                    UPDATE `".DB::table('bbssdk_forum_sync')."` SET modifytime=@currtime,synctime=0,flag=2 where syncid=@syncid;
+                ELSE
+                    UPDATE `".DB::table('bbssdk_forum_sync')."` SET modifytime=@currtime,synctime=0,flag=3 where syncid=@syncid;
+                END IF;
+	ELSE
+                IF @newfid = @fid THEN
+                    INSERT INTO `".DB::table('bbssdk_forum_sync')."`(fid,tid,creattime,modifytime,synctime,flag) VALUE(@fid,@tid,@currtime,@currtime,0,2);
+                ELSE
+                    INSERT INTO `".DB::table('bbssdk_forum_sync')."`(fid,tid,creattime,modifytime,synctime,flag) VALUE(@fid,@tid,@currtime,@currtime,0,3);
+                END IF;
+	END IF;
+	END;";
+	DB::query($sql);
+        /* end帖子触发器 fix */
 }

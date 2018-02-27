@@ -170,7 +170,8 @@ function post_relation_item($item){
                                 "dateline" => (int)$item['dateline'],
                                 "useip" => $item['useip'],
                                 "invisible" => (int) $item['invisible'],
-                                "position" => (int)$item['position']
+                                "position" => (int)$item['position'],
+                                "anonymous"=>$item['anonymous']
                         );
                         $messgeArray = filter_detail($message,$newItem['tid']);
                         $newItem['message'] = $messgeArray[0];
@@ -198,7 +199,7 @@ function filter_detail($text,$tid)
                        preg_match("%\d{4}-\d{1,2}-\d{1,2}\s\d{1,2}:\d{1,2}%is", $actTxt, $dateline);
                        if(!empty($author[1]) && !empty($text[1])){
                                $precomment = array(
-                                       "author" => $author[1],
+                                       "author" => $author[0],
                                        "dateline" => strtotime($dateline[0]),
                                        "message" => $text[1]
                                );

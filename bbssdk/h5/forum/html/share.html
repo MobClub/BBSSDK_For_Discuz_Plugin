@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-            <meta charset="utf-8">
+        <meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<title>详情页</title>
 		<meta name="viewport" content="initial-scale=1, maximum-scale=1">
@@ -10,7 +10,6 @@
 		<meta name="format-detection" content="telephone=no">
 		<link rel="stylesheet" type="text/css" href="./source/plugin/bbssdk/h5/forum/assets/css/style.css">
         <link rel="stylesheet" type="text/css" href="./source/plugin/bbssdk/h5/forum/assets/css/md.css">
-                
         <script type="text/javascript" src="//f.moblink.mob.com/v2_0_1/moblink.js?appkey=<?php echo $appkey?>"></script>
         <script type="text/javascript">
             MobLink({
@@ -68,7 +67,7 @@
     			<li>
                             <div class="t">
                                 <div class="m-l-0"><img src="<?php echo $p['avatar']?>"/></div>
-                                <div class="name"><?php echo $p['author']?></div>
+                                <div class="name"><?php echo $p['anonymous']==1?'匿名用户':$p['author']?></div>
                                 <div><?php echo formatDate($p['dateline'])?></div>
                                 <!--<div class="r" @click="reply(list)"><img src="./source/plugin/bbssdk/h5/forum/assets/images/post.png"/></div>-->
                                 <div class="r"><?php echo $p['position']?>楼</div>

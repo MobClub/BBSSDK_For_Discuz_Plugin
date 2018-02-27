@@ -336,15 +336,24 @@ function install_action()
 	BEGIN
 	set @fid = old.fid;
 	set @tid = old.tid;
+        set @newfid = new.fid;
 	SET @currtime = UNIX_TIMESTAMP(NOW());
 	set @syncid=0;
 	set @modifytime=0;
 	set @synctime=0;
 	SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_forum_sync')."` where fid=@fid and tid=@tid;
 	IF @syncid>0 THEN
-		UPDATE `".DB::table('bbssdk_forum_sync')."` SET modifytime=@currtime,synctime=0,flag=2 where syncid=@syncid;
+                IF @newfid = @fid THEN
+                    UPDATE `".DB::table('bbssdk_forum_sync')."` SET modifytime=@currtime,synctime=0,flag=2 where syncid=@syncid;
+                ELSE
+                    UPDATE `".DB::table('bbssdk_forum_sync')."` SET modifytime=@currtime,synctime=0,flag=3 where syncid=@syncid;
+                END IF;
 	ELSE
-		INSERT INTO `".DB::table('bbssdk_forum_sync')."`(fid,tid,creattime,modifytime,synctime,flag) VALUE(@fid,@tid,@currtime,@currtime,0,2);
+                IF @newfid = @fid THEN
+                    INSERT INTO `".DB::table('bbssdk_forum_sync')."`(fid,tid,creattime,modifytime,synctime,flag) VALUE(@fid,@tid,@currtime,@currtime,0,2);
+                ELSE
+                    INSERT INTO `".DB::table('bbssdk_forum_sync')."`(fid,tid,creattime,modifytime,synctime,flag) VALUE(@fid,@tid,@currtime,@currtime,0,3);
+                END IF;
 	END IF;
 	END;";
 	DB::query($sql);
@@ -848,7 +857,6 @@ function install_action()
 	END;";
 	DB::query($sql);
         /* 门户栏目模块结束 */
-        
         /* 用户组模块开始 */
         $sql = "CREATE TRIGGER bbssdk_afterinsert_on_usergroup AFTER INSERT ON `".DB::table('common_usergroup_field')."` FOR EACH ROW \r\n
         BEGIN
@@ -898,7 +906,7 @@ function install_action()
 	END;";
 	DB::query($sql);
         /* 用户组模块结束 */
-
+        
 	for($i=0; $i < 60; $i++){
 		$times = array();
 		for($j=0;$j<12 && $i+$j<60;$j++){
