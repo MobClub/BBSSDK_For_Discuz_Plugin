@@ -34,7 +34,7 @@ body {
 	color: #333;
 	font-size: 16px;
 	line-height: 1.5;
-	background-color: #eaedf2;
+	background-color: #ffffff;
     word-break: break-word;
 }
 
@@ -187,7 +187,9 @@ button:active,input[type=button]:active {
 }
 .author-info .line{
     border-left: 1px solid #eeeeee;
-    padding-left: 10px;
+    width: 1px;
+    height: 13px;
+    margin-top: 2px;
 }
 .article {
 	padding: .8rem .75rem;
@@ -251,8 +253,8 @@ button:active,input[type=button]:active {
     border-bottom: 1px solid #dddddd;
 }
 .relate .right{
-    width: 4.8rem;
-    max-height: 4.8rem;
+    width: 4.5rem;
+    max-height: 4.5rem;
     float: right;
     overflow: hidden;
 }
@@ -289,6 +291,7 @@ button:active,input[type=button]:active {
     color: #ACADB8;
     font-size: 14px;
     font-family: Semibold;
+	background-color:#eaedf2;
 }
 .mob-wrap{
     width: 100%;

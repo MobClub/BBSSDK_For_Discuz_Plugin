@@ -194,7 +194,7 @@ class Forum extends BaseCore
 			);
 			$modthread->forum('threadsorts',$threadsorts);
 		}
-
+                $_G['group']['allowanonymous'] = $_G['forum']['allowanonymous'] || $_G['group']['allowanonymous'] ? 1 : 0;
 		$return = $modthread->newthread($params);
 		$tid = $modthread->tid;
 		$pid = $modthread->pid;
