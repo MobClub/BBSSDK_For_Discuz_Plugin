@@ -101,7 +101,9 @@ class Portal extends BaseCore
                 $data['commentnum'] = $article['commentnum'];
                 $this->success_result($data);
             }
-            
+            if($retmessage == 'comment_comment_notallowed'){
+                return_status(804);
+            }
             return_status(805,$retmessage);
         }
         function addportalarticlecomment($id, $message, $idtype = 'aid') {
@@ -119,7 +121,9 @@ class Portal extends BaseCore
                 if(empty($data)) {
                         return 'comment_comment_noexist';
                 }
-                if($data['allowcomment'] != 1) {
+                $catid = $data['catid'];
+                $category = C::t('portal_category')->fetch($catid);
+                if($data['allowcomment'] != 1||$category['allowcomment']!=1) {
                         return 'comment_comment_notallowed';
                 }
 

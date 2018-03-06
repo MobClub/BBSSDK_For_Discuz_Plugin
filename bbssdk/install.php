@@ -638,6 +638,8 @@ function install_action()
 	DB::query($sql);
         $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticletitle;";
 	DB::query($sql);
+        $sql = "DROP TRIGGER IF EXISTS bbssdk_afterupdate_on_portalarticlecount;";
+	DB::query($sql);
         $sql = "DROP TRIGGER IF EXISTS bbssdk_afterinsert_on_portalarticlerelated;";
 	DB::query($sql);
         $sql = "DROP TRIGGER IF EXISTS bbssdk_afterdelete_on_portalarticlerelated;";
@@ -655,6 +657,22 @@ function install_action()
                 INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(new.aid,@currtime,@currtime,0,1);
         ELSE
                 UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=1 WHERE syncid=@syncid;
+        END IF;
+        END;";
+        DB::query($sql);
+        
+        $sql = "CREATE TRIGGER bbssdk_afterupdate_on_portalarticlecount AFTER UPDATE ON `".DB::table('portal_article_count')."` FOR EACH ROW \r\n
+        BEGIN
+        set @syncid=0;
+        set @modifytime=0;
+        set @synctime=0;
+        set @aid = old.aid;
+        SELECT syncid,modifytime,synctime into @syncid,@modifytime,@synctime FROM `".DB::table('bbssdk_portal_article_sync')."` WHERE aid=@aid;
+        SET @currtime = UNIX_TIMESTAMP(NOW());
+        IF @syncid > 0 THEN
+                UPDATE `".DB::table('bbssdk_portal_article_sync')."` SET modifytime=@currtime,synctime=0,flag=2 WHERE syncid=@syncid;
+        ELSE
+                INSERT INTO `".DB::table('bbssdk_portal_article_sync')."`(aid,modifytime,creattime,synctime,flag) VALUES(@aid,@currtime,@currtime,0,2);
         END IF;
         END;";
         DB::query($sql);
