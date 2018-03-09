@@ -16,7 +16,14 @@ $type = intval($_REQUEST['type']);
 //}
 
 $article = getdetail($aid);
-$commentslist = get_commentslist($aid);
+$category = C::t('portal_category')->fetch($article['catid']);
+if($article['allowcomment'] != 1||$category['allowcomment']!=1) {
+    $commentslist = array();
+}else{
+    $commentslist = get_commentslist($aid);
+}
+
+C::t('portal_article_count')->increase($aid, array('viewnum'=>1));
 
 $setting = C::t('common_setting')->fetch_all(array('bbssdk_setting'));
 $setting = (array)unserialize($setting['bbssdk_setting']);
