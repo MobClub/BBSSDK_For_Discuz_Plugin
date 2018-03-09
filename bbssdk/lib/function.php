@@ -58,7 +58,7 @@ function removeTags($cotnent)
 function gbkToUtf8($newItem,$c){
     if(is_array($newItem)){
         foreach ($newItem as &$v){
-            $v = yy($v,$c);
+            $v = gbkToUtf8($v,$c);
         }
     }else{
         if(function_exists('iconv')){
