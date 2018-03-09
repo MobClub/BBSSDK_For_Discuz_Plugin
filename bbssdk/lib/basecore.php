@@ -138,6 +138,7 @@ class BaseCore
 	    }
 	    header("Content-type:application/json;charset=".$_G['charset']);
 	    if(preg_match('%^gb%is',$_G['charset'])){
+                $final = gbkToUtf8($final,$_G['charset']);
 	        echo json_encode_new($final,true);
 	    }else{
 	        echo json_encode($final);

@@ -55,7 +55,20 @@ function removeTags($cotnent)
     $content = preg_replace("%<[^>]*>%is", '', $content);
     return $content;
 }
-
+function gbkToUtf8($newItem,$c){
+    if(is_array($newItem)){
+        foreach ($newItem as &$v){
+            $v = yy($v,$c);
+        }
+    }else{
+        if(function_exists('iconv')){
+            $newItem = iconv($c,'UTF-8//ignore', $newItem);
+        }else{
+            $newItem = mb_convert_encoding($newItem, 'UTF-8', $c);
+        }
+    }
+    return $newItem;
+}
 function return_status($code,$params=null)
 {
     global $_G;$_ERROR = $GLOBALS['BBSSDK_ERROR'];
