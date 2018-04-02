@@ -48,7 +48,13 @@ $GLOBALS['BBSSDK_ERROR'] = array(
     810 => '受隐私设置，无权限',
     811 => '已经表过态'
 );
-
+if ( !function_exists('htmlspecialchars_decode') )
+{
+    function htmlspecialchars_decode($text)
+    {
+        return strtr($text, array_flip(get_html_translation_table(HTML_SPECIALCHARS)));
+    }
+}
 function removeTags($cotnent)
 {
     $content = preg_replace("%[[\w\.]*]%is", '', $cotnent);

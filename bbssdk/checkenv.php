@@ -19,8 +19,7 @@ if((!isset($_POST['bbssdk_check'])||$_POST['bbssdk_check']!='checked')&&!isset($
     preg_match("/GRANT (.*) ON/", strtoupper($grants[0]),$g);
     $p = explode(', ',$g[1]);
     $nop = '';
-
-    if(strpos($p,'ALL PRIVILEGES')===false){
+    if(strpos($p[0],'ALL PRIVILEGES')===false){
         foreach (array('SELECT','INSERT','UPDATE','DELETE','DROP','TRIGGER','CREATE') as $i){
             if(!in_array($i, $p)){
                 $nop.= $i.'<br/>';
