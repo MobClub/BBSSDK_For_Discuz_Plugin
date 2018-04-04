@@ -385,7 +385,8 @@ class Portal extends BaseCore
             $res['click4']     = $article['click4'];
             $res['click5']     = $article['click5'];
             $res['shareurl']   = get_site_url().'plugin.php?id=bbssdk:portal&aid='.$content['aid'];
-            $res['attachment'] = $attachs = array();         
+            $res['attachment'] = $attachs = array();
+            $res['content'] = preg_replace("%\[attach.*attach\]%isU", '', $res['content']);
             foreach(C::t('portal_attachment')->fetch_all_by_aid($res['aid']) as $value) {
                 if(!$value['isimage']) {
                     $value['url'] = $value['remote'] ? $_G['setting']['ftp']['attachurl'].'portal/'.$value['attachment'] : rtrim($_G['setting']['siteurl'],'/').'/data/attachment/portal/'.$value['attachment'];
