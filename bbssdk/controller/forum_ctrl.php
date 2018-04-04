@@ -154,7 +154,7 @@ class Forum extends BaseCore
 				return_status(405,'抱歉，您没有权限在该版块发帖');
 			}
 		} elseif($_G['forum']['allowpost'] == -1) {
-			return_status(405,'post_forum_newthread_nopermission', NULL);
+			return_status(405,'post_forum_newthread_nopermission');
 		}
 
 		if(!$_G['uid'] && ($_G['setting']['need_avatar'] || $_G['setting']['need_email'] || $_G['setting']['need_friendnum'])) {

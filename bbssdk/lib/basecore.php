@@ -201,7 +201,7 @@ class model_forum_newpost extends model_forum_post
 		if($custom) {
 			$alerttype = 'alert_info';
 			$show_message = $message;
-			return_status(405,$showmessage);
+			return_status(405,$show_message);
 		}
 
 		$vars = explode(':', $message);
@@ -246,7 +246,7 @@ class model_forum_newthread extends model_forum_thread
 		if($custom) {
 			$alerttype = 'alert_info';
 			$show_message = $message;
-			return_status(405,$showmessage);
+			return_status(405,$show_message);
 		}
 
 		$vars = explode(':', $message);
